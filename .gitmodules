@@ -1,0 +1,3 @@
+[submodule "lib/wrecks"]
+	path = lib/wrecks
+	url = git@github.com:Space-Type/Wrecks.git
