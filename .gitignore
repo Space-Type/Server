@@ -1,0 +1,8 @@
+# CMake build directory
+build/
+
+# Built files (just in case)
+r-type_server
+libwrecks.a
+*.o
+*.pch
