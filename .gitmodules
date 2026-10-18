@@ -1,3 +1,6 @@
 [submodule "lib/wrecks"]
 	path = lib/wrecks
 	url = https://github.com/Space-Type/Wrecks.git
+[submodule "lib/protecs"]
+	path = lib/protecs
+	url = https://github.com/Space-Type/Protecs.git
