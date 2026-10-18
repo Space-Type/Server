@@ -9,8 +9,9 @@
 #pragma once
 
 #include <rtype/components.hpp>
+#include <rtype/systems.hpp>
 
 
 namespace RType::Game {
-    using Engine = Wrecks::ECS::Engine<std::tuple<>, Components::Manager>;
+    using Engine = Wrecks::ECS::Engine<Systems::Tuple, Components::Manager>;
 }
