@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include <rtype/networking/packets.hpp>
+#include <protecs/networking/packets.hpp>
 
 
 namespace RType::Game {
@@ -16,7 +16,7 @@ namespace RType::Game {
         public:
             EventHandler() noexcept;
 
-            void operator()(const Networking::Packets::EntityPosition& data);
-            void operator()(const Networking::Packets::PlayerInput& data);
+            void operator()(const Protecs::Networking::Packets::EntityPosition& data);
+            void operator()(const Protecs::Networking::Packets::PlayerInput& data);
     };
 }

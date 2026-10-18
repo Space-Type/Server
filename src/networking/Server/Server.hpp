@@ -8,9 +8,8 @@
 
 #pragma once
 
-#include "../Packet/Packet.hpp"
+#include <protecs/networking.hpp>
 #include <rtype/threads.hpp>
-#include <wrecks/networking.hpp>
 #include <string_view>
 #include <cstdint>
 #include <ostream>
@@ -20,9 +19,9 @@ namespace RType::Networking {
     class Server {
         static constexpr int POLL_TIMEOUT = 1000;
 
-        Wrecks::Networking::UDPSocket m_Socket;
+        Protecs::Networking::UDPSocket m_Socket;
         std::ostream* m_Output;
-        Threads::ThreadQueue<std::pair<Wrecks::Networking::Address, Packet>> m_PendingRequests;
+        Threads::ThreadQueue<std::pair<Protecs::Networking::Address, Protecs::Networking::Packet>> m_PendingRequests;
 
         private:
             Server(std::string_view host, std::uint16_t port, std::ostream* logStream = nullptr);

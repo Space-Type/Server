@@ -15,6 +15,7 @@ project(RType-Server VERSION 1.0
 
 set(CMAKE_CXX_STANDARD 23)
 
+add_subdirectory(lib/protecs)
 add_subdirectory(lib/wrecks)
 
 set(SOURCES
@@ -22,23 +23,17 @@ set(SOURCES
     src/game/EventHandler/EventHandler.hpp
     src/game/Game/Game.cpp
     src/game/Game/Game.hpp
-    src/networking/Packet/Packet.cpp
-    src/networking/Packet/Packet.hpp
-    src/networking/packets/EntityPosition/EntityPosition.cpp
-    src/networking/packets/EntityPosition/EntityPosition.hpp
-    src/networking/packets/PlayerInput/PlayerInput.cpp
-    src/networking/packets/PlayerInput/PlayerInput.hpp
-    src/networking/packets/PacketData.hpp
     src/networking/Server/Server.cpp
     src/networking/Server/Server.hpp
     src/threads/ThreadQueue.hpp
-    src/utils/Memory.hpp
     src/utils/SignalHandler.hpp
     src/main.cpp)
 
 add_executable(r-type_server ${SOURCES})
 
 target_include_directories(r-type_server PUBLIC include
-                                         PUBLIC lib/wrecks/include)
+                                         PUBLIC lib/wrecks/include
+                                         PUBLIC lib/protecs/include)
 
-target_link_libraries(r-type_server PUBLIC wrecks)
+target_link_libraries(r-type_server PUBLIC wrecks
+                                    PUBLIC protecs)
