@@ -19,7 +19,22 @@ RType::Game::EventHandler::EventHandler(Game& game, const Protecs::Networking::A
 {
 }
 
+void RType::Game::EventHandler::operator()(const Packets::EntityAddComponent& data)
+{
+
+}
+
 void RType::Game::EventHandler::operator()(const Packets::EntityPosition& data)
+{
+
+}
+
+void RType::Game::EventHandler::operator()(const Packets::EntityRemoveComponent& data)
+{
+
+}
+
+void RType::Game::EventHandler::operator()(const Packets::EntitySyncComponents& data)
 {
 
 }

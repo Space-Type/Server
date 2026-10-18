@@ -21,7 +21,10 @@ namespace RType::Game {
         public:
             EventHandler(Game& game, const Protecs::Networking::Address& sender) noexcept;
 
+            void operator()(const Protecs::Networking::Packets::EntityAddComponent& data);
             void operator()(const Protecs::Networking::Packets::EntityPosition& data);
+            void operator()(const Protecs::Networking::Packets::EntityRemoveComponent& data);
+            void operator()(const Protecs::Networking::Packets::EntitySyncComponents& data);
             void operator()(const Protecs::Networking::Packets::PlayerInput& data);
     };
 }
