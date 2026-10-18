@@ -26,7 +26,11 @@ void RType::Game::Game::update()
 
 bool RType::Game::Game::pushEvent(const Protecs::Networking::Address& sender, Protecs::Networking::Packets::PacketData&& data)
 {
-    m_IncomingEvents.emplace_back(sender, std::move(data));
+    auto playerIt = m_Players.find(sender);
+    if (playerIt == m_Players.end())
+        return false;
+
+    m_IncomingEvents.emplace_back(&playerIt->second, std::move(data));
     return true;
 }
 

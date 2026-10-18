@@ -17,11 +17,11 @@
 namespace RType::Game {
     class Game {
         public:
-            using Event = std::pair<Player, Protecs::Networking::Packets::PacketData>;
+            using Event = std::pair<const Player*, Protecs::Networking::Packets::PacketData>;
 
         private:
             Engine m_Engine;
-            // std::unordered_map<Protecs::Networking::Address, Player> m_Players;
+            std::unordered_map<Protecs::Networking::Address, Player> m_Players;
             std::deque<Event> m_IncomingEvents;
             std::deque<Event> m_OutgoingEvents;
 

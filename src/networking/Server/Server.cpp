@@ -78,7 +78,7 @@ void RType::Networking::Server::update()
         auto& [player, data] = evt;
 
         auto packet = Protecs::Networking::Packet::serialize(data);
-        m_Socket.send(packet, player.address());
+        m_Socket.send(packet, player->address());
     }
 
     // Handle all incoming events
@@ -127,8 +127,8 @@ auto RType::Networking::Server::log(std::string_view tag) -> std::ostream&
 auto RType::Networking::Server::tagColor(std::string_view tag) -> unsigned int
 {
     if (tag == "WARNING") return 33;  // yellow-ish orange
-    if (tag == "ERROR")   return 31;    // red
-    if (tag == "FATAL")   return 35;    // magenta
+    if (tag == "ERROR")   return 31;  // red
+    if (tag == "FATAL")   return 35;  // magenta
 
     return 34;  // blue
 }
