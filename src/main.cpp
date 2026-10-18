@@ -5,12 +5,12 @@
 ** Program Entry
 */
 
-#include "networking/Server/Server.hpp"
 #include <rtype.hpp>
 #include <wrecks.hpp>
+#include <iostream>
 
 
-int main(int argc, char *argv[])
+static void run(int argc, char *argv[])
 {
     auto server = RType::Networking::Server::Builder()
         .setHost("0.0.0.0")
@@ -18,4 +18,15 @@ int main(int argc, char *argv[])
         .build();
 
     server.run();
+}
+
+int main(int argc, char *argv[])
+{
+    try {
+        run(argc, argv);
+    } catch (const std::exception& err) {
+        std::cerr << err.what() << std::endl;
+    } catch (...) {
+        std::cerr << "unknown error" << std::endl;
+    }
 }
