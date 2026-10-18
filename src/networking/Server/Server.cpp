@@ -7,6 +7,7 @@
 */
 
 #include "Server.hpp"
+#include <protecs/errors.hpp>
 #include <rtype/utils.hpp>
 #include <iostream>
 #include <iomanip>
@@ -16,6 +17,7 @@
 
 // Discards everything written to it (no stream buffer)
 static std::ostream VOID_STREAM(nullptr);
+
 
 RType::Networking::Server::Server(std::string_view host, std::uint16_t port, std::ostream* output)
     : m_Socket()
@@ -53,7 +55,7 @@ void RType::Networking::Server::run()
     while (m_Socket.isOpen()) {
         try {
             update();
-        } catch (const Wrecks::Error& err) {
+        } catch (const Protecs::Error& err) {
             log("ERROR") << err.what() << std::endl;
         }
 
@@ -86,8 +88,8 @@ void RType::Networking::Server::receiveRequests()
     if (!m_Socket.pollReceive(POLL_TIMEOUT))
         return;
 
-    Wrecks::Networking::Address senderAddr;
-    Packet packet = {};
+    Protecs::Networking::Address senderAddr;
+    Protecs::Networking::Packet packet = {};
 
     auto bytes = m_Socket.receive(packet, &senderAddr);
     log() << "received packet from " << senderAddr << " (" << bytes << "B)" << std::endl;
