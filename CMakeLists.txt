@@ -1,6 +1,6 @@
 ##
 ## EPITECH PROJECT, 2026
-## Project - R-Type
+## Project - RType
 ## File description:
 ## Main project build
 ## file
@@ -18,6 +18,13 @@ set(CMAKE_CXX_STANDARD 23)
 add_subdirectory(lib/wrecks)
 
 set(SOURCES
+    src/networking/Packet/Packet.cpp
+    src/networking/Packet/Packet.hpp
+    src/networking/packets/EntityPosition/EntityPosition.cpp
+    src/networking/packets/EntityPosition/EntityPosition.hpp
+    src/networking/packets/PacketData.hpp
+    src/networking/Server/Server.cpp
+    src/networking/Server/Server.hpp
     src/main.cpp)
 
 add_executable(r-type_server ${SOURCES})
