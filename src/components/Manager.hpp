@@ -11,9 +11,12 @@
 #include <rtype/components/types.hpp>
 #include <protecs/components.hpp>
 #include <wrecks/ecs.hpp>
+#include <wrecks/utils.hpp>
 
 
 namespace RType::Components {
-    using Manager = Wrecks::ECS::ComponentManager<Protecs::Components::Motion,
-                                                  Protecs::Components::Transform>;
+    using Manager = Wrecks::Utils::concat_types_t<
+        Protecs::Components::Manager,
+        Wrecks::ECS::ComponentManager<>
+    >;
 }

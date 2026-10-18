@@ -9,10 +9,14 @@
 #pragma once
 
 #include <rtype/systems/types.hpp>
-// #include <protecs/systems.hpp>
+#include <protecs/systems.hpp>
+#include <wrecks/utils.hpp>
 #include <tuple>
 
 
 namespace RType::Systems {
-    using Tuple = std::tuple<>;
+    using Tuple = Wrecks::Utils::concat_types_t<
+        Protecs::Systems::Tuple,
+        std::tuple<>
+    >;
 }
