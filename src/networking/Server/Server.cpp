@@ -14,7 +14,8 @@
 #include <ctime>
 
 
-static class : public std::ostream {} VOID_STREAM;
+// Discards everything written to it (no stream buffer)
+static std::ostream VOID_STREAM(nullptr);
 
 RType::Networking::Server::Server(std::string_view host, std::uint16_t port, std::ostream* output)
     : m_Socket()
