@@ -20,6 +20,8 @@ add_subdirectory(lib/wrecks)
 set(SOURCES
     src/game/EventHandler/EventHandler.cpp
     src/game/EventHandler/EventHandler.hpp
+    src/game/Game/Game.cpp
+    src/game/Game/Game.hpp
     src/networking/Packet/Packet.cpp
     src/networking/Packet/Packet.hpp
     src/networking/packets/EntityPosition/EntityPosition.cpp

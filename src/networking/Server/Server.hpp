@@ -32,10 +32,10 @@ namespace RType::Networking {
             Server(Server&& other);
             ~Server();
 
+            inline void setLogStream(std::ostream& output) noexcept { m_Output = &output; }
+
             void run();
             void update();
-
-            inline void setLogStream(std::ostream& output) noexcept { m_Output = &output; }
 
             void swap(Server& other);
             inline void operator=(Server&& other) { swap(other); }
