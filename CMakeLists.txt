@@ -25,6 +25,9 @@ set(SOURCES
     src/networking/packets/PacketData.hpp
     src/networking/Server/Server.cpp
     src/networking/Server/Server.hpp
+    src/threads/ThreadQueue.hpp
+    src/utils/Memory.hpp
+    src/utils/SignalHandler.hpp
     src/main.cpp)
 
 add_executable(r-type_server ${SOURCES})

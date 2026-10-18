@@ -9,4 +9,5 @@
 #pragma once
 
 #include "rtype/networking.hpp"
+#include "rtype/threads.hpp"
 #include "rtype/utils.hpp"
