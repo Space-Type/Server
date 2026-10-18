@@ -7,9 +7,11 @@
 */
 
 #include "Server.hpp"
-#include "../Packet/Packet.hpp"
 #include <rtype/utils.hpp>
 #include <iostream>
+#include <iomanip>
+#include <thread>
+#include <ctime>
 
 
 static class : public std::ostream {} VOID_STREAM;
@@ -17,6 +19,7 @@ static class : public std::ostream {} VOID_STREAM;
 RType::Networking::Server::Server(std::string_view host, std::uint16_t port, std::ostream* output)
     : m_Socket()
     , m_Output(output)
+    , m_PendingRequests()
 {
     log() << "starting server" << std::endl;
     m_Socket.open(host, port);
@@ -26,6 +29,7 @@ RType::Networking::Server::Server(std::string_view host, std::uint16_t port, std
 RType::Networking::Server::Server(Server&& other)
     : m_Socket()
     , m_Output(nullptr)
+    , m_PendingRequests()
 {
     swap(other);
 }
@@ -39,11 +43,21 @@ void RType::Networking::Server::run()
 {
     Utils::InterruptHandler::initialize();
 
+    std::jthread pollThread([&](){
+        while (m_Socket.isOpen()) {
+            receiveRequests();
+        }
+    });
+
     while (m_Socket.isOpen()) {
-        update();
+        try {
+            update();
+        } catch (const Wrecks::Error& err) {
+            log("ERROR") << err.what() << std::endl;
+        }
 
         if (Utils::InterruptHandler::isActive()) {
-            log() << "CTRL + C received, shutting down..." << std::endl;
+            log("WARNING") << "CTRL + C received, shutting down..." << std::endl;
             m_Socket.close();
             Utils::InterruptHandler::reset();
         }
@@ -52,25 +66,31 @@ void RType::Networking::Server::run()
 
 void RType::Networking::Server::update()
 {
-    Wrecks::Networking::Address senderAddr;
-    Packet packet = {};
+    auto request = m_PendingRequests.pop();
+    if (!request)
+        return;
 
-    auto bytes = m_Socket.receive(packet, &senderAddr);
-    log() << "received packet from " << senderAddr << " (" << bytes << "B)" << std::endl;
+    auto& [sender, packet] = *request;
 
     auto data = packet.deserialize();
-    auto& pos = std::get<Packets::EntityPosition>(data);
-
-    std::cout << "{ "
-              << ".entity = " << pos.entity << ", "
-              << ".x = " << pos.x << ", "
-              << ".y = " << pos.y << " "
-              << "}" << std::endl;
 }
 
 void RType::Networking::Server::swap(Server& other)
 {
     std::swap(m_Socket, other.m_Socket);
+}
+
+void RType::Networking::Server::receiveRequests()
+{
+    if (!m_Socket.pollReceive(POLL_TIMEOUT))
+        return;
+
+    Wrecks::Networking::Address senderAddr;
+    Packet packet = {};
+
+    auto bytes = m_Socket.receive(packet, &senderAddr);
+    log() << "received packet from " << senderAddr << " (" << bytes << "B)" << std::endl;
+    m_PendingRequests.push({ senderAddr, std::move(packet) });
 }
 
 auto RType::Networking::Server::log(std::string_view tag) -> std::ostream&
@@ -82,8 +102,17 @@ auto RType::Networking::Server::log(std::string_view tag) -> std::ostream&
     auto localtime = *std::localtime(&time);
 
     return *m_Output << std::put_time(&localtime, "%d-%m-%Y %H:%M:%S") << " "
-                     << "[\033[34;1m" << tag << "\033[0m] "
+                     << "[\033[" << tagColor(tag) << ";1m" << tag << "\033[0m] "
                      << "- server: ";
+}
+
+auto RType::Networking::Server::tagColor(std::string_view tag) -> unsigned int
+{
+    if (tag == "WARNING") return 33;  // yellow-ish orange
+    if (tag == "ERROR")   return 31;    // red
+    if (tag == "FATAL")   return 35;    // magenta
+
+    return 34;  // blue
 }
 
 /////////////////////////////////////////////////////////

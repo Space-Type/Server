@@ -8,18 +8,21 @@
 
 #pragma once
 
+#include "../Packet/Packet.hpp"
+#include <rtype/threads.hpp>
 #include <wrecks/networking.hpp>
 #include <string_view>
 #include <cstdint>
 #include <ostream>
-#include <iomanip>
-#include <ctime>
 
 
 namespace RType::Networking {
     class Server {
+        static constexpr int POLL_TIMEOUT = 1000;
+
         Wrecks::Networking::UDPSocket m_Socket;
         std::ostream* m_Output;
+        Threads::ThreadQueue<std::pair<Wrecks::Networking::Address, Packet>> m_PendingRequests;
 
         private:
             Server(std::string_view host, std::uint16_t port, std::ostream* logStream = nullptr);
@@ -38,7 +41,9 @@ namespace RType::Networking {
             inline void operator=(Server&& other) { swap(other); }
 
         private:
-            std::ostream& log(std::string_view tag = "LOG");
+            void receiveRequests();
+            std::ostream& log(std::string_view tag = "INFO");
+            unsigned int tagColor(std::string_view tag);
 
         public:
             class Builder {
