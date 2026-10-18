@@ -14,3 +14,9 @@ RType::Game::Player::Player(const Protecs::Networking::Address& addr) noexcept
 {
 
 }
+
+RType::Game::Player::Player() noexcept
+    : m_Address()
+{
+
+}

@@ -7,14 +7,16 @@
 */
 
 #include "EventHandler.hpp"
+#include "../Game/Game.hpp"
 
 
 namespace Packets = Protecs::Networking::Packets;
 
 
-RType::Game::EventHandler::EventHandler() noexcept
+RType::Game::EventHandler::EventHandler(Game& game, const Protecs::Networking::Address& sender) noexcept
+    : m_Game(game)
+    , m_Sender(sender)
 {
-
 }
 
 void RType::Game::EventHandler::operator()(const Packets::EntityPosition& data)

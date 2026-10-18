@@ -8,13 +8,18 @@
 
 #pragma once
 
-#include <protecs/networking/packets.hpp>
+#include <protecs/networking.hpp>
 
 
 namespace RType::Game {
+    class Game;
+
     class EventHandler {
+        const Protecs::Networking::Address& m_Sender;
+        Game& m_Game;
+
         public:
-            EventHandler() noexcept;
+            EventHandler(Game& game, const Protecs::Networking::Address& sender) noexcept;
 
             void operator()(const Protecs::Networking::Packets::EntityPosition& data);
             void operator()(const Protecs::Networking::Packets::PlayerInput& data);

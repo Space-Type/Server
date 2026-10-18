@@ -21,6 +21,7 @@ static std::ostream VOID_STREAM(nullptr);
 
 RType::Networking::Server::Server(std::string_view host, std::uint16_t port, std::ostream* output)
     : m_Socket()
+    , m_Game()
     , m_Output(output)
     , m_PendingRequests()
 {
@@ -31,6 +32,7 @@ RType::Networking::Server::Server(std::string_view host, std::uint16_t port, std
 
 RType::Networking::Server::Server(Server&& other)
     : m_Socket()
+    , m_Game()
     , m_Output(nullptr)
     , m_PendingRequests()
 {
@@ -69,13 +71,26 @@ void RType::Networking::Server::run()
 
 void RType::Networking::Server::update()
 {
+    // Send all outgoing events
+    Game::Game::Event evt;
+
+    while (m_Game.popEvent(evt)) {
+        auto& [player, data] = evt;
+
+        auto packet = Protecs::Networking::Packet::serialize(data);
+        m_Socket.send(packet, player.address());
+    }
+
+    // Handle all incoming events
     auto request = m_PendingRequests.pop();
-    if (!request)
-        return;
 
-    auto& [sender, packet] = *request;
+    while (request) {
+        auto& [sender, packet] = *request;
+        m_Game.pushEvent(sender, packet.deserialize());
 
-    auto data = packet.deserialize();
+        request = m_PendingRequests.pop();
+    }
+
 }
 
 void RType::Networking::Server::swap(Server& other)

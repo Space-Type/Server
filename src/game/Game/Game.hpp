@@ -8,10 +8,32 @@
 
 #pragma once
 
+#include "../Engine.hpp"
+#include "../Player/Player.hpp"
+#include <protecs/networking.hpp>
+#include <deque>
+
 
 namespace RType::Game {
     class Game {
         public:
+            using Event = std::pair<Player, Protecs::Networking::Packets::PacketData>;
+
+        private:
+            Engine m_Engine;
+            // std::unordered_map<Protecs::Networking::Address, Player> m_Players;
+            std::deque<Event> m_IncomingEvents;
+            std::deque<Event> m_OutgoingEvents;
+
+        public:
             Game() noexcept;
+
+            void update();
+
+            bool pushEvent(const Protecs::Networking::Address& sender, Protecs::Networking::Packets::PacketData&& data);
+            bool popEvent(Event& evt);
+
+        private:
+            void handleEvents();
     };
 }

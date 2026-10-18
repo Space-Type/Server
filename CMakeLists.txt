@@ -19,12 +19,17 @@ add_subdirectory(lib/protecs)
 add_subdirectory(lib/wrecks)
 
 set(SOURCES
+    src/components/Manager.hpp
     src/game/EventHandler/EventHandler.cpp
     src/game/EventHandler/EventHandler.hpp
     src/game/Game/Game.cpp
     src/game/Game/Game.hpp
+    src/game/Player/Player.cpp
+    src/game/Player/Player.hpp
+    src/game/Engine.hpp
     src/networking/Server/Server.cpp
     src/networking/Server/Server.hpp
+    src/systems/Tuple.hpp
     src/threads/ThreadQueue.hpp
     src/utils/SignalHandler.hpp
     src/main.cpp)

@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <rtype/game.hpp>
 #include <protecs/networking.hpp>
 #include <rtype/threads.hpp>
 #include <string_view>
@@ -20,6 +21,7 @@ namespace RType::Networking {
         static constexpr int POLL_TIMEOUT = 1000;
 
         Protecs::Networking::UDPSocket m_Socket;
+        Game::Game m_Game;
         std::ostream* m_Output;
         Threads::ThreadQueue<std::pair<Protecs::Networking::Address, Protecs::Networking::Packet>> m_PendingRequests;
 
