@@ -15,8 +15,8 @@ project(RType-Server VERSION 1.0
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_subdirectory(lib/protecs)
 add_subdirectory(lib/wrecks)
+add_subdirectory(lib/protecs)
 
 set(SOURCES
     src/components/Manager.hpp
