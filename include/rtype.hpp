@@ -8,7 +8,9 @@
 
 #pragma once
 
+#include "rtype/components.hpp"
 #include "rtype/game.hpp"
 #include "rtype/networking.hpp"
+#include "rtype/systems.hpp"
 #include "rtype/threads.hpp"
 #include "rtype/utils.hpp"
