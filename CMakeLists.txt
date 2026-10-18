@@ -24,6 +24,8 @@ set(SOURCES
     src/networking/Packet/Packet.hpp
     src/networking/packets/EntityPosition/EntityPosition.cpp
     src/networking/packets/EntityPosition/EntityPosition.hpp
+    src/networking/packets/PlayerInput/PlayerInput.cpp
+    src/networking/packets/PlayerInput/PlayerInput.hpp
     src/networking/packets/PacketData.hpp
     src/networking/Server/Server.cpp
     src/networking/Server/Server.hpp

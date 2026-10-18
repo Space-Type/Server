@@ -17,5 +17,6 @@ namespace RType::Game {
             EventHandler() noexcept;
 
             void operator()(const Networking::Packets::EntityPosition& data);
+            void operator()(const Networking::Packets::PlayerInput& data);
     };
 }

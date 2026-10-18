@@ -38,6 +38,12 @@ auto RType::Networking::Packet::deserialize() const -> Packets::PacketData
         case element_index_v<Packets::EntityPosition, Packets::PacketData>:
             result = Packets::EntityPosition::deserialize(std::span(dataStart, raw.cend()));
             break;
+
+        case element_index_v<Packets::PlayerInput, Packets::PacketData>:
+            result = Packets::PlayerInput::deserialize(std::span(dataStart, raw.cend()));
+            break;
+
+        default: throw std::runtime_error("unknown packet data type " + std::to_string(type));
     }
 
     return result;

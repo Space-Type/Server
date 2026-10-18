@@ -18,3 +18,8 @@ void RType::Game::EventHandler::operator()(const Networking::Packets::EntityPosi
 {
 
 }
+
+void RType::Game::EventHandler::operator()(const Networking::Packets::PlayerInput& data)
+{
+
+}

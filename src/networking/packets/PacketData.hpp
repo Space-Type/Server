@@ -13,5 +13,6 @@
 
 
 namespace RType::Networking::Packets {
-    using PacketData = std::variant<EntityPosition>;
+    using PacketData = std::variant<EntityPosition,
+                                    PlayerInput>;
 }

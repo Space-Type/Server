@@ -9,3 +9,4 @@
 #pragma once
 
 #include "../../../src/networking/packets/EntityPosition/EntityPosition.hpp"
+#include "../../../src/networking/packets/PlayerInput/PlayerInput.hpp"
