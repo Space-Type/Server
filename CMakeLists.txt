@@ -18,6 +18,8 @@ set(CMAKE_CXX_STANDARD 23)
 add_subdirectory(lib/wrecks)
 
 set(SOURCES
+    src/game/EventHandler/EventHandler.cpp
+    src/game/EventHandler/EventHandler.hpp
     src/networking/Packet/Packet.cpp
     src/networking/Packet/Packet.hpp
     src/networking/packets/EntityPosition/EntityPosition.cpp
