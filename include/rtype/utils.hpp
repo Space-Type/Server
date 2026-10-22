@@ -8,4 +8,5 @@
 
 #pragma once
 
+#include "../../src/utils/Logger/Logger.hpp"
 #include "../../src/utils/SignalHandler.hpp"
