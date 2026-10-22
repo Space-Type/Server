@@ -22,11 +22,9 @@ set(SOURCES
     src/components/Manager.hpp
     src/game/Game/Game.cpp
     src/game/Game/Game.hpp
-    src/game/Player/Player.cpp
-    src/game/Player/Player.hpp
+    src/game/Server/Server.cpp
+    src/game/Server/Server.hpp
     src/game/Engine.hpp
-    src/networking/Server/Server.cpp
-    src/networking/Server/Server.hpp
     src/systems/Tuple.hpp
     src/threads/ThreadQueue.hpp
     src/utils/Logger/Logger.cpp

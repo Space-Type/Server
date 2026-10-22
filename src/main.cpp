@@ -12,7 +12,7 @@
 
 static void run(int argc, char *argv[])
 {
-    auto server = RType::Networking::Server::Builder()
+    auto server = RType::Game::Server::Builder()
         .setHost("0.0.0.0")
         .setPort(5432)
         .build();

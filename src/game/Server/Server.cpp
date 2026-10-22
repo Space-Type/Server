@@ -13,7 +13,7 @@
 
 
 
-RType::Networking::Server::Server(std::string_view host, std::uint16_t port)
+RType::Game::Server::Server(std::string_view host, std::uint16_t port)
     : m_Socket()
     , m_Game()
     , m_PendingRequests()
@@ -23,7 +23,7 @@ RType::Networking::Server::Server(std::string_view host, std::uint16_t port)
     logger.info() << "started server on " << m_Socket.address() << std::endl;
 }
 
-RType::Networking::Server::Server(Server&& other)
+RType::Game::Server::Server(Server&& other)
     : m_Socket()
     , m_Game()
     , m_PendingRequests()
@@ -31,12 +31,12 @@ RType::Networking::Server::Server(Server&& other)
     swap(other);
 }
 
-RType::Networking::Server::~Server()
+RType::Game::Server::~Server()
 {
     logger.info() << "shut down" << std::endl;
 }
 
-void RType::Networking::Server::run()
+void RType::Game::Server::run()
 {
     Utils::InterruptHandler::initialize();
 
@@ -63,7 +63,7 @@ void RType::Networking::Server::run()
     }
 }
 
-void RType::Networking::Server::update()
+void RType::Game::Server::update()
 {
     // Send all outgoing events
     Game::Game::Event evt;
@@ -87,12 +87,12 @@ void RType::Networking::Server::update()
 
 }
 
-void RType::Networking::Server::swap(Server& other)
+void RType::Game::Server::swap(Server& other)
 {
     std::swap(m_Socket, other.m_Socket);
 }
 
-void RType::Networking::Server::receiveRequests()
+void RType::Game::Server::receiveRequests()
 {
     if (!m_Socket.pollReceive(POLL_TIMEOUT))
         return;
@@ -111,37 +111,37 @@ void RType::Networking::Server::receiveRequests()
 //                                                     //
 /////////////////////////////////////////////////////////
 
-RType::Networking::Server::Builder::Builder() noexcept
+RType::Game::Server::Builder::Builder() noexcept
     : m_Host("0.0.0.0")
     , m_Port(8080)
 {
 }
 
-auto RType::Networking::Server::Builder::setHost(std::string_view host) && -> Builder&&
+auto RType::Game::Server::Builder::setHost(std::string_view host) && -> Builder&&
 {
     m_Host = host == "localhost" ? "127.0.0.1" : host;
     return std::move(*this);
 }
 
-auto RType::Networking::Server::Builder::setPort(std::uint16_t port) && -> Builder&&
+auto RType::Game::Server::Builder::setPort(std::uint16_t port) && -> Builder&&
 {
     m_Port = port;
     return std::move(*this);
 }
 
-auto RType::Networking::Server::Builder::setLogStream(std::ostream& output) && -> Builder&&
+auto RType::Game::Server::Builder::setLogStream(std::ostream& output) && -> Builder&&
 {
     logger.setOutput(output);
     return std::move(*this);
 }
 
-auto RType::Networking::Server::Builder::setLogLevel(Utils::Logger::Level level) && -> Builder&&
+auto RType::Game::Server::Builder::setLogLevel(Utils::Logger::Level level) && -> Builder&&
 {
     logger.setLevel(level);
     return std::move(*this);
 }
 
-auto RType::Networking::Server::Builder::build() && -> Server
+auto RType::Game::Server::Builder::build() && -> Server
 {
     return Server(m_Host, m_Port);
 }
