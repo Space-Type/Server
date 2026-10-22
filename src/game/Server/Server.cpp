@@ -72,7 +72,7 @@ void RType::Game::Server::update()
         auto& [player, data] = evt;
 
         auto packet = Protecs::Networking::Packet::serialize(data);
-        m_Socket.send(packet, player->address());
+        m_Socket.send(packet, player->address);
     }
 
     // Handle all incoming events
@@ -84,7 +84,6 @@ void RType::Game::Server::update()
 
         request = m_PendingRequests.pop();
     }
-
 }
 
 void RType::Game::Server::swap(Server& other)

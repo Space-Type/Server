@@ -9,21 +9,21 @@
 #pragma once
 
 #include "../Engine.hpp"
-#include "../Player/Player.hpp"
+#include <rtype/components.hpp>
 #include <protecs/networking.hpp>
 #include <deque>
 
 
 namespace RType::Game {
     class Game {
-        using InternalEvent = std::pair<Player*, Protecs::Networking::Packets::PacketData>;
+        using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
 
         public:
-            using Event = std::pair<const Player*, Protecs::Networking::Packets::PacketData>;
+            using Event = std::pair<const Components::Player*, Protecs::Networking::Packets::PacketData>;
 
         private:
             Engine m_Engine;
-            std::unordered_map<Protecs::Networking::Address, Player> m_Players;
+            std::unordered_map<Protecs::Networking::Address, Wrecks::ECS::Entity> m_Players;
             std::deque<InternalEvent> m_IncomingEvents;
             std::deque<Event> m_OutgoingEvents;
 
@@ -44,10 +44,10 @@ namespace RType::Game {
         private:
             class EventHandler {
                 Game& m_Game;
-                Player& m_Player;
+                Components::Player& m_Player;
 
                 public:
-                    EventHandler(Game& game, Player& player) noexcept;
+                    EventHandler(Game& game, Components::Player& player) noexcept;
 
                     void operator()(const Protecs::Networking::Packets::EntityAddComponent& data);
                     void operator()(const Protecs::Networking::Packets::EntityComponentData& data);

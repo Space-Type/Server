@@ -7,6 +7,7 @@
 */
 
 #include "Game.hpp"
+#include "protecs/common.hpp"
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
 #include <variant>
@@ -30,6 +31,13 @@ void RType::Game::Game::update()
     m_Engine.update();
 }
 
+/**
+ * Pushes an external event into
+ * the game's external event queue.
+ *
+ * The events will be handled on the
+ * next update().
+ */
 bool RType::Game::Game::pushEvent(const Protecs::Networking::Address& sender, Packets::PacketData&& data)
 {
     if (std::holds_alternative<Packets::PlayerJoin>(data)) {
@@ -44,10 +52,19 @@ bool RType::Game::Game::pushEvent(const Protecs::Networking::Address& sender, Pa
         return false;
     }
 
-    m_IncomingEvents.emplace_back(&playerIt->second, std::move(data));
+    auto& player = m_Engine.get<Components::Player>()[playerIt->second];
+
+    m_IncomingEvents.emplace_back(&player, std::move(data));
     return true;
 }
 
+/**
+ * Pops an internal event from
+ * the game's internal event queue.
+ *
+ * Events may be pushed onto this
+ * queue by the Game on update().
+ */
 bool RType::Game::Game::popEvent(Event& data)
 {
     if (m_OutgoingEvents.empty())
@@ -72,7 +89,12 @@ bool RType::Game::Game::registerPlayer(const Protecs::Networking::Address& addre
         return false;
     }
 
-    m_Players[address] = Player(address, name);
+    auto playerEntity = m_Engine.createEntity();
+    m_Players[address] = playerEntity;
+
+    m_Engine.addComponent(playerEntity, Components::Player{ address, std::string(name) });
+    m_Engine.addComponent(playerEntity, Components::NetworkID::fromEntity(playerEntity));
+
     logger.info() << "player \"" << name << "\" (" << address << ") joined the game" << std::endl;
     return true;
 }
@@ -89,10 +111,17 @@ void RType::Game::Game::disconnectPlayer(const Protecs::Networking::Address& add
         return;
     }
 
-    logger.info() << "player \"" << playerIt->second.name() << "\" (" << playerIt->second.address() << ") disconnected" << std::endl;
+    auto& player = m_Engine.get<Components::Player>()[playerIt->second];
+    logger.info() << "player \"" << player.name << "\" (" << player.address << ") disconnected" << std::endl;
+
+    m_Engine.deleteEntity(playerIt->second);
     m_Players.erase(playerIt);
 }
 
+/**
+ * Handles any and all external
+ * events queued by the server.
+ */
 void RType::Game::Game::handleEvents()
 {
     while (!m_IncomingEvents.empty()) {
@@ -113,7 +142,7 @@ void RType::Game::Game::handleEvents()
 //                                                                                     //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-RType::Game::Game::EventHandler::EventHandler(Game& game, Player& player) noexcept
+RType::Game::Game::EventHandler::EventHandler(Game& game, Components::Player& player) noexcept
     : m_Game(game)
     , m_Player(player)
 {
@@ -121,54 +150,60 @@ RType::Game::Game::EventHandler::EventHandler(Game& game, Player& player) noexce
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityAddComponent& data)
 {
-    logger.debug() << "received EntityAddComponent from " << m_Player.name() << std::endl;
+    logger.debug() << "received EntityAddComponent from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityComponentData& data)
 {
-    logger.debug() << "received EntityComponentData from " << m_Player.name() << std::endl;
+    logger.debug() << "received EntityComponentData from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityCreate& data)
 {
-    logger.debug() << "received EntityCreate from " << m_Player.name() << std::endl;
+    logger.debug() << "received EntityCreate from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityDelete& data)
 {
-    logger.debug() << "received EntityDelete from " << m_Player.name() << std::endl;
+    logger.debug() << "received EntityDelete from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityRemoveComponent& data)
 {
-    logger.debug() << "received EntityRemoveComponent from " << m_Player.name() << std::endl;
+    logger.debug() << "received EntityRemoveComponent from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntitySyncComponents& data)
 {
-    logger.debug() << "received EntitySyncComponents from " << m_Player.name() << std::endl;
+    logger.debug() << "received EntitySyncComponents from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::Ping& data)
 {
-    logger.debug() << "received Ping from " << m_Player.name() << std::endl;
+    logger.debug() << "received Ping from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& data)
 {
-    logger.debug() << "received PlayerInput from " << m_Player.name() << std::endl;
+    logger.debug() << "received PlayerInput from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
 {
-    logger.debug() << "received PlayerJoin from " << m_Player.name() << std::endl;
+    logger.debug() << "received PlayerJoin from " << m_Player.name << std::endl;
 
-    // for (const auto& [_, player] : m_Game.m_Players) {
-    //     m_Game.m_OutgoingEvents.emplace_back(&player, Packets::EntityCreate{});
-    // }
+    auto playerEntity = m_Game.m_Players.at(m_Player.address);
+    auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
+
+    for (const auto& [_, playerEntity] : m_Game.m_Players) {
+        const auto& otherPlayer = m_Game.m_Engine.get<Components::Player>()[playerEntity];
+        m_Game.m_OutgoingEvents.emplace_back(&otherPlayer, Packets::EntityCreate{ .id = networkId });
+    }
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
 {
-    logger.debug() << "received PlayerLeave from " << m_Player.name() << std::endl;
+    logger.debug() << "received PlayerLeave from " << m_Player.name << std::endl;
+
+    m_Game.disconnectPlayer(m_Player.address);
 }
