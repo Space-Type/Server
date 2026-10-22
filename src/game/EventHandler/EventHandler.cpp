@@ -40,7 +40,22 @@ void RType::Game::EventHandler::operator()(const Packets::EntitySyncComponents& 
     logger.debug() << "received EntitySyncComponents from " << m_Player.name() << std::endl;
 }
 
+void RType::Game::EventHandler::operator()(const Packets::Ping& data)
+{
+    logger.debug() << "received Ping from " << m_Player.name() << std::endl;
+}
+
 void RType::Game::EventHandler::operator()(const Packets::PlayerInput& data)
 {
     logger.debug() << "received PlayerInput from " << m_Player.name() << std::endl;
+}
+
+void RType::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
+{
+    logger.debug() << "received PlayerJoin from " << m_Player.name() << std::endl;
+}
+
+void RType::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
+{
+    logger.debug() << "received PlayerLeave from " << m_Player.name() << std::endl;
 }
