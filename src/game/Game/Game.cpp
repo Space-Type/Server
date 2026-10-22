@@ -129,6 +129,16 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityComponentD
     logger.debug() << "received EntityComponentData from " << m_Player.name() << std::endl;
 }
 
+void RType::Game::Game::EventHandler::operator()(const Packets::EntityCreate& data)
+{
+    logger.debug() << "received EntityCreate from " << m_Player.name() << std::endl;
+}
+
+void RType::Game::Game::EventHandler::operator()(const Packets::EntityDelete& data)
+{
+    logger.debug() << "received EntityDelete from " << m_Player.name() << std::endl;
+}
+
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityRemoveComponent& data)
 {
     logger.debug() << "received EntityRemoveComponent from " << m_Player.name() << std::endl;
@@ -152,7 +162,10 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& dat
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
 {
     logger.debug() << "received PlayerJoin from " << m_Player.name() << std::endl;
-    m_Game.m_OutgoingEvents.emplace_back();
+
+    // for (const auto& [_, player] : m_Game.m_Players) {
+    //     m_Game.m_OutgoingEvents.emplace_back(&player, Packets::EntityCreate{});
+    // }
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
