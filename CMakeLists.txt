@@ -31,6 +31,8 @@ set(SOURCES
     src/networking/Server/Server.hpp
     src/systems/Tuple.hpp
     src/threads/ThreadQueue.hpp
+    src/utils/Logger/Logger.cpp
+    src/utils/Logger/Logger.hpp
     src/utils/SignalHandler.hpp
     src/main.cpp)
 

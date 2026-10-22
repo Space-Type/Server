@@ -8,6 +8,7 @@
 
 #include "Logger.hpp"
 #include <iomanip>
+#include <ctime>
 
 
 static std::ostream VOID_STREAM(nullptr);
