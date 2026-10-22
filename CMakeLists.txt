@@ -20,8 +20,6 @@ add_subdirectory(lib/protecs)
 
 set(SOURCES
     src/components/Manager.hpp
-    src/game/EventHandler/EventHandler.cpp
-    src/game/EventHandler/EventHandler.hpp
     src/game/Game/Game.cpp
     src/game/Game/Game.hpp
     src/game/Player/Player.cpp
