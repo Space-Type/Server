@@ -86,7 +86,7 @@ void RType::Networking::Server::update()
 
     while (request) {
         auto& [sender, packet] = *request;
-        m_Game.pushEvent(sender, packet.deserialize());
+        m_Game.pushEvent(sender, std::move(packet));
 
         request = m_PendingRequests.pop();
     }
@@ -106,9 +106,9 @@ void RType::Networking::Server::receiveRequests()
     Protecs::Networking::Address senderAddr;
     Protecs::Networking::Packet packet = {};
 
-    auto bytes = m_Socket.receive(packet, &senderAddr);
-    log() << "received packet from " << senderAddr << " (" << bytes << "B)" << std::endl;
-    m_PendingRequests.push({ senderAddr, std::move(packet) });
+    m_Socket.receive(packet, &senderAddr);
+    log() << "received packet from " << senderAddr << " (" << packet.filled << "B)" << std::endl;
+    m_PendingRequests.push({ senderAddr, packet.deserialize() });
 }
 
 auto RType::Networking::Server::log(std::string_view tag) -> std::ostream&

@@ -23,7 +23,7 @@ namespace RType::Networking {
         Protecs::Networking::UDPSocket m_Socket;
         Game::Game m_Game;
         std::ostream* m_Output;
-        Threads::ThreadQueue<std::pair<Protecs::Networking::Address, Protecs::Networking::Packet>> m_PendingRequests;
+        Threads::ThreadQueue<std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>> m_PendingRequests;
 
         private:
             Server(std::string_view host, std::uint16_t port, std::ostream* logStream = nullptr);
