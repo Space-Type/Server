@@ -24,7 +24,7 @@ void RType::Game::EventHandler::operator()(const Packets::EntityAddComponent& da
 
 }
 
-void RType::Game::EventHandler::operator()(const Packets::EntityPosition& data)
+void RType::Game::EventHandler::operator()(const Packets::EntityComponentData& data)
 {
 
 }
