@@ -13,13 +13,14 @@
 
 namespace RType::Game {
     class Game;
+    class Player;
 
     class EventHandler {
-        const Protecs::Networking::Address& m_Sender;
         Game& m_Game;
+        Player& m_Player;
 
         public:
-            EventHandler(Game& game, const Protecs::Networking::Address& sender) noexcept;
+            EventHandler(Game& game, Player& player) noexcept;
 
             void operator()(const Protecs::Networking::Packets::EntityAddComponent& data);
             void operator()(const Protecs::Networking::Packets::EntityComponentData& data);
