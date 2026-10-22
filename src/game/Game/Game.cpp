@@ -7,6 +7,8 @@
 */
 
 #include "Game.hpp"
+#include <rtype/game.hpp>
+#include <rtype/utils.hpp>
 
 
 RType::Game::Game::Game() noexcept
@@ -26,9 +28,14 @@ void RType::Game::Game::update()
 
 bool RType::Game::Game::pushEvent(const Protecs::Networking::Address& sender, Protecs::Networking::Packets::PacketData&& data)
 {
+    m_Players[sender] = Player(sender, "john");  // FIXME: remove
+    // TODO: handle PlayerJoin event here, add player to map if valid
+
     auto playerIt = m_Players.find(sender);
-    if (playerIt == m_Players.end())
+    if (playerIt == m_Players.end()) {
+        logger.warning() << "rejected request from " << sender << " (not a player)" << std::endl;
         return false;
+    }
 
     m_IncomingEvents.emplace_back(&playerIt->second, std::move(data));
     return true;
@@ -48,9 +55,11 @@ bool RType::Game::Game::popEvent(Event& data)
 void RType::Game::Game::handleEvents()
 {
     while (!m_IncomingEvents.empty()) {
-        const auto& [player, data] = m_IncomingEvents.front();
+        auto& [player, data] = m_IncomingEvents.front();
+        if (!player)
+            continue;
 
-        // TODO: handle event
+        std::visit(EventHandler(*this, *player), data);
 
         m_IncomingEvents.pop_front();
     }
