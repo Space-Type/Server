@@ -35,7 +35,28 @@ namespace RType::Game {
             bool pushEvent(const Protecs::Networking::Address& sender, Protecs::Networking::Packets::PacketData&& data);
             bool popEvent(Event& evt);
 
+            bool registerPlayer(const Protecs::Networking::Address& address, std::string_view name);
+            void disconnectPlayer(const Protecs::Networking::Address& address);
+
         private:
             void handleEvents();
+
+        private:
+            class EventHandler {
+                Game& m_Game;
+                Player& m_Player;
+
+                public:
+                    EventHandler(Game& game, Player& player) noexcept;
+
+                    void operator()(const Protecs::Networking::Packets::EntityAddComponent& data);
+                    void operator()(const Protecs::Networking::Packets::EntityComponentData& data);
+                    void operator()(const Protecs::Networking::Packets::EntityRemoveComponent& data);
+                    void operator()(const Protecs::Networking::Packets::EntitySyncComponents& data);
+                    void operator()(const Protecs::Networking::Packets::Ping& data);
+                    void operator()(const Protecs::Networking::Packets::PlayerInput& data);
+                    void operator()(const Protecs::Networking::Packets::PlayerJoin& data);
+                    void operator()(const Protecs::Networking::Packets::PlayerLeave& data);
+            };
     };
 }
