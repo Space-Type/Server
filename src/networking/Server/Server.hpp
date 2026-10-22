@@ -8,12 +8,12 @@
 
 #pragma once
 
+#include <rtype/threads.hpp>
+#include <rtype/utils.hpp>
 #include <rtype/game.hpp>
 #include <protecs/networking.hpp>
-#include <rtype/threads.hpp>
 #include <string_view>
 #include <cstdint>
-#include <ostream>
 
 
 namespace RType::Networking {
@@ -22,18 +22,15 @@ namespace RType::Networking {
 
         Protecs::Networking::UDPSocket m_Socket;
         Game::Game m_Game;
-        std::ostream* m_Output;
-        Threads::ThreadQueue<std::pair<Protecs::Networking::Address, Protecs::Networking::Packet>> m_PendingRequests;
+        Threads::ThreadQueue<std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>> m_PendingRequests;
 
         private:
-            Server(std::string_view host, std::uint16_t port, std::ostream* logStream = nullptr);
+            Server(std::string_view host, std::uint16_t port);
 
         public:
             Server(const Server& cpy) = delete;
             Server(Server&& other);
             ~Server();
-
-            inline void setLogStream(std::ostream& output) noexcept { m_Output = &output; }
 
             void run();
             void update();
@@ -43,14 +40,11 @@ namespace RType::Networking {
 
         private:
             void receiveRequests();
-            std::ostream& log(std::string_view tag = "INFO");
-            unsigned int tagColor(std::string_view tag);
 
         public:
             class Builder {
                 std::string_view m_Host;
                 std::uint16_t m_Port;
-                std::ostream* m_OutputStream;
 
                 public:
                     Builder() noexcept;
@@ -58,7 +52,7 @@ namespace RType::Networking {
                     Builder&& setHost(std::string_view host) &&;
                     Builder&& setPort(std::uint16_t port) &&;
                     Builder&& setLogStream(std::ostream& output) &&;
-                    Builder&& setLogStream() &&;
+                    Builder&& setLogLevel(Utils::Logger::Level level) &&;
 
                     Server build() &&;
             };
