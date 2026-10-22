@@ -9,5 +9,5 @@
 #pragma once
 
 #include "../../src/game/Game/Game.hpp"
-#include "../../src/game/Player/Player.hpp"
+#include "../../src/game/Server/Server.hpp"
 #include "../../src/game/Engine.hpp"
