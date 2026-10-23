@@ -7,7 +7,6 @@
 */
 
 #include "Game.hpp"
-#include "protecs/common.hpp"
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
 #include <variant>
@@ -112,10 +111,14 @@ void RType::Game::Game::disconnectPlayer(const Protecs::Networking::Address& add
     }
 
     auto& player = m_Engine.get<Components::Player>()[playerIt->second];
+    auto networkId = m_Engine.get<Components::NetworkID>()[playerIt->second].id;
+
     logger.info() << "player \"" << player.name << "\" (" << player.address << ") disconnected" << std::endl;
 
     m_Engine.deleteEntity(playerIt->second);
     m_Players.erase(playerIt);
+
+    broadcastPacket(Packets::EntityDelete{ .id = networkId });
 }
 
 /**
@@ -132,6 +135,18 @@ void RType::Game::Game::handleEvents()
         std::visit(EventHandler(*this, *player), data);
 
         m_IncomingEvents.pop_front();
+    }
+}
+
+/**
+ * Broadcasts a packet to
+ * all connected players.
+ */
+void RType::Game::Game::broadcastPacket(Packets::PacketData&& data)
+{
+    for (const auto& [_, playerEntity] : m_Players) {
+        const auto& player = m_Engine.get<Components::Player>()[playerEntity];
+        m_OutgoingEvents.emplace_back(&player, data);
     }
 }
 
@@ -183,6 +198,20 @@ void RType::Game::Game::EventHandler::operator()(const Packets::Ping& data)
     logger.debug() << "received Ping from " << m_Player.name << std::endl;
 }
 
+void RType::Game::Game::EventHandler::operator()(const Packets::PlayerId& data)
+{
+    logger.debug() << "received PlayerId from " << m_Player.name << std::endl;
+
+    auto playerEntity = m_Game.m_Players.at(m_Player.address);
+    auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
+
+    // Ignore data contents.
+    // If a player sends a PlayerId packet,
+    // send them their Network ID, so that
+    // they can retrieve it in case they lost it.
+    m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ .id = networkId });
+}
+
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& data)
 {
     logger.debug() << "received PlayerInput from " << m_Player.name << std::endl;
@@ -195,10 +224,9 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
 
-    for (const auto& [_, playerEntity] : m_Game.m_Players) {
-        const auto& otherPlayer = m_Game.m_Engine.get<Components::Player>()[playerEntity];
-        m_Game.m_OutgoingEvents.emplace_back(&otherPlayer, Packets::EntityCreate{ .id = networkId });
-    }
+    m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
+
+    m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId });
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
