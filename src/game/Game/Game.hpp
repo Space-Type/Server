@@ -40,6 +40,7 @@ namespace RType::Game {
 
         private:
             void handleEvents();
+            void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
 
         private:
             class EventHandler {
@@ -56,6 +57,7 @@ namespace RType::Game {
                     void operator()(const Protecs::Networking::Packets::EntityRemoveComponent& data);
                     void operator()(const Protecs::Networking::Packets::EntitySyncComponents& data);
                     void operator()(const Protecs::Networking::Packets::Ping& data);
+                    void operator()(const Protecs::Networking::Packets::PlayerId& data);
                     void operator()(const Protecs::Networking::Packets::PlayerInput& data);
                     void operator()(const Protecs::Networking::Packets::PlayerJoin& data);
                     void operator()(const Protecs::Networking::Packets::PlayerLeave& data);
