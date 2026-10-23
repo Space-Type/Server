@@ -49,11 +49,9 @@ void RType::Game::Server::run()
     while (m_Socket.isOpen()) {
         try {
             update();
-        } catch (const Protecs::Error& err) {
+        } catch (const std::exception& err) {
             logger.error() << err.what() << std::endl;
         }
-
-        m_Game.update();
 
         if (Utils::InterruptHandler::isActive()) {
             logger.fatal() << "CTRL + C received, shutting down..." << std::endl;
@@ -84,6 +82,9 @@ void RType::Game::Server::update()
 
         request = m_PendingRequests.pop();
     }
+
+    // Update game
+    m_Game.update();
 }
 
 void RType::Game::Server::swap(Server& other)
