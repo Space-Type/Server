@@ -16,6 +16,8 @@
 
 namespace RType::Game {
     class Game {
+        static constexpr auto FIXED_UPDATE_RATE = Wrecks::DeltaTime(2.0 / 120.0);
+
         using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
 
         public:
@@ -23,6 +25,8 @@ namespace RType::Game {
 
         private:
             Engine m_Engine;
+            Wrecks::DeltaTime m_AccumulatedDelta;
+
             std::unordered_map<Protecs::Networking::Address, Wrecks::ECS::Entity> m_Players;
             std::deque<InternalEvent> m_IncomingEvents;
             std::deque<Event> m_OutgoingEvents;
@@ -30,13 +34,31 @@ namespace RType::Game {
         public:
             Game() noexcept;
 
-            void update();
+            void update(Wrecks::DeltaTime dt);
 
             bool pushEvent(const Protecs::Networking::Address& sender, Protecs::Networking::Packets::PacketData&& data);
             bool popEvent(Event& evt);
 
             bool registerPlayer(const Protecs::Networking::Address& address, std::string_view name);
             void disconnectPlayer(const Protecs::Networking::Address& address);
+
+            template <Wrecks::Utils::ContainerContainsType<Protecs::Components::Manager> C>
+            void sendSharedComponent(Wrecks::ECS::Entity entity)
+            {
+                const auto& networkId = m_Engine.get<Components::NetworkID>()[entity];
+
+                broadcastPacket(Protecs::Networking::Packets::EntityComponentData{
+                    .entity = networkId.id,
+                    .component = m_Engine.get<C>()[entity],
+                });
+            }
+
+            template <Wrecks::Utils::ContainerContainsType<Protecs::Components::Manager> C>
+            void addSharedComponent(Wrecks::ECS::Entity entity, C&& data)
+            {
+                m_Engine.addComponent(entity, std::move(data));
+                sendSharedComponent<C>(entity);
+            }
 
         private:
             void handleEvents();

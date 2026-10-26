@@ -17,6 +17,7 @@ namespace Packets = Protecs::Networking::Packets;
 
 RType::Game::Game::Game() noexcept
     : m_Engine()
+    , m_AccumulatedDelta()
     , m_Players()
     , m_IncomingEvents()
     , m_OutgoingEvents()
@@ -24,10 +25,21 @@ RType::Game::Game::Game() noexcept
 
 }
 
-void RType::Game::Game::update()
+/**
+ * Runs a single frame of
+ * game logic.
+ */
+void RType::Game::Game::update(Wrecks::DeltaTime dt)
 {
     handleEvents();
-    m_Engine.update();
+
+    m_AccumulatedDelta += dt;
+    while (m_AccumulatedDelta >= FIXED_UPDATE_RATE) {
+        m_Engine.fixedUpdate(FIXED_UPDATE_RATE);
+        m_AccumulatedDelta -= FIXED_UPDATE_RATE;
+    }
+
+    m_Engine.update(dt);
 }
 
 /**
@@ -227,6 +239,8 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
 
     m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId });
+    m_Game.addSharedComponent(playerEntity, Protecs::Components::Transform{});
+    m_Game.addSharedComponent(playerEntity, Protecs::Components::Velocity{});
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
