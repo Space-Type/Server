@@ -175,11 +175,6 @@ RType::Game::Game::EventHandler::EventHandler(Game& game, Components::Player& pl
 {
 }
 
-void RType::Game::Game::EventHandler::operator()(const Packets::EntityAddComponent& data)
-{
-    logger.debug() << "received EntityAddComponent from " << m_Player.name << std::endl;
-}
-
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityComponentData& data)
 {
     logger.debug() << "received EntityComponentData from " << m_Player.name << std::endl;
@@ -194,6 +189,12 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityDelete& da
 {
     logger.debug() << "received EntityDelete from " << m_Player.name << std::endl;
 }
+
+void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data)
+{
+    logger.debug() << "received EntityList from " << m_Player.name << std::endl;
+}
+
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityRemoveComponent& data)
 {
