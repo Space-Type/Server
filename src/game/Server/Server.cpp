@@ -46,12 +46,19 @@ void RType::Game::Server::run()
         }
     });
 
+    std::chrono::time_point frameStart = std::chrono::steady_clock::now();
+    Wrecks::DeltaTime delta(0.001);
+
     while (m_Socket.isOpen()) {
         try {
-            update();
+            update(delta);
         } catch (const std::exception& err) {
             logger.error() << err.what() << std::endl;
         }
+
+        std::chrono::time_point frameEnd = std::chrono::steady_clock::now();
+        delta = frameEnd - frameStart;
+        frameStart = frameEnd;
 
         if (Utils::InterruptHandler::isActive()) {
             logger.fatal() << "CTRL + C received, shutting down..." << std::endl;
@@ -61,7 +68,7 @@ void RType::Game::Server::run()
     }
 }
 
-void RType::Game::Server::update()
+void RType::Game::Server::update(Wrecks::DeltaTime dt)
 {
     // Send all outgoing events
     Game::Game::Event evt;
@@ -70,6 +77,7 @@ void RType::Game::Server::update()
         auto& [player, data] = evt;
 
         auto packet = Protecs::Networking::Packet::serialize(data);
+        logger.debug() << "sending packet to " << player->address << " (" << packet.filled << "B)" << std::endl;
         m_Socket.send(packet, player->address);
     }
 
@@ -84,7 +92,7 @@ void RType::Game::Server::update()
     }
 
     // Update game
-    m_Game.update();
+    m_Game.update(dt);
 }
 
 void RType::Game::Server::swap(Server& other)
@@ -104,6 +112,7 @@ void RType::Game::Server::receiveRequests()
     logger.debug() << "received packet from " << senderAddr << " (" << packet.filled << "B)" << std::endl;
     m_PendingRequests.push({ senderAddr, packet.deserialize() });
 }
+
 
 /////////////////////////////////////////////////////////
 //                                                     //

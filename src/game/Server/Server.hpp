@@ -33,7 +33,7 @@ namespace RType::Game {
             ~Server();
 
             void run();
-            void update();
+            void update(Wrecks::DeltaTime dt);
 
             void swap(Server& other);
             inline void operator=(Server&& other) { swap(other); }
