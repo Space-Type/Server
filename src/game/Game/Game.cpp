@@ -193,6 +193,16 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityDelete& da
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data)
 {
     logger.debug() << "received EntityList from " << m_Player.name << std::endl;
+
+    Packets::EntityList entityList;
+
+    entityList.entities.reserve(m_Game.m_Engine.entities().size());
+    for (auto [entity, signature] : m_Game.m_Engine.entities()) {
+        auto& network = m_Game.m_Engine.get<Components::NetworkID>()[entity];
+        entityList.entities.emplace_back(network.id, signature);
+    }
+
+    m_Game.m_OutgoingEvents.emplace_back(&m_Player, std::move(entityList));
 }
 
 
@@ -242,6 +252,9 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
     m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId, .type = Packets::EntityCreate::PLAYER });
     m_Game.addSharedComponent(playerEntity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
     m_Game.addSharedComponent(playerEntity, Protecs::Components::Velocity{});
+
+    // send entity list to player
+    operator()(Packets::EntityList{});
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
