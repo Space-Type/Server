@@ -239,8 +239,8 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
 
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
 
-    m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId });
-    m_Game.addSharedComponent(playerEntity, Protecs::Components::Transform{});
+    m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId, .type = Packets::EntityCreate::PLAYER });
+    m_Game.addSharedComponent(playerEntity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
     m_Game.addSharedComponent(playerEntity, Protecs::Components::Velocity{});
 }
 
