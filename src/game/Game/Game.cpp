@@ -212,8 +212,10 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data
     Packets::EntityList entityList;
 
     entityList.entities.reserve(m_Game.m_Engine.entities().size());
-    for (auto [entity, signature] : m_Game.m_Engine.entities()) {
+    for (auto [entity, serverSig] : m_Game.m_Engine.entities()) {
+        const auto signature = serverSig & Protecs::Components::Manager::mask();  // remove server-side components
         auto& network = m_Game.m_Engine.get<Components::NetworkID>()[entity];
+
         entityList.entities.emplace_back(network.id, signature);
     }
 
@@ -237,16 +239,17 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntitySyncCompon
         return;
     }
 
-    auto signature = m_Game.m_Engine.entitySignature(entity);
+    // Note: when synchronizing components, only shared
+    // components are considered. The client may send
+    // extra components in the entity's signature, but
+    // those are completely ignored.
+    auto signature = m_Game.m_Engine.entitySignature(entity) & Protecs::Components::Manager::mask();
+
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::EntitySyncComponents{
         .entity    = data.entity,
         .signature = signature,
     });
 
-    // Note: when synchronizing components, only shared
-    // components are considered. The client may send
-    // extra components in the entity's signature, but
-    // those are completely ignored.
     for (std::size_t i = 0; i < Wrecks::Utils::container_elements_v<Protecs::Components::Manager>; i++) {
         if (signature.test(i) == data.signature.test(i))
             continue;
