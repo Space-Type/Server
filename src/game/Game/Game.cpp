@@ -7,6 +7,7 @@
 */
 
 #include "Game.hpp"
+#include "protecs/common.hpp"
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
 #include <variant>
@@ -151,6 +152,20 @@ void RType::Game::Game::handleEvents()
 }
 
 /**
+ * Retrieves a local ECS entity
+ * from a given entity network ID.
+ */
+auto RType::Game::Game::findEntity(Protecs::NetworkEntity network) const -> Wrecks::ECS::Entity
+{
+    for (auto [entity, data] : m_Engine.get<Components::NetworkID>()) {
+        if (data.id == network)
+            return entity;
+    }
+
+    return UINT32_MAX;
+}
+
+/**
  * Broadcasts a packet to
  * all connected players.
  */
@@ -197,8 +212,10 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data
     Packets::EntityList entityList;
 
     entityList.entities.reserve(m_Game.m_Engine.entities().size());
-    for (auto [entity, signature] : m_Game.m_Engine.entities()) {
+    for (auto [entity, serverSig] : m_Game.m_Engine.entities()) {
+        const auto signature = serverSig & Protecs::Components::Manager::mask();  // remove server-side components
         auto& network = m_Game.m_Engine.get<Components::NetworkID>()[entity];
+
         entityList.entities.emplace_back(network.id, signature);
     }
 
@@ -214,6 +231,48 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityRemoveComp
 void RType::Game::Game::EventHandler::operator()(const Packets::EntitySyncComponents& data)
 {
     logger.debug() << "received EntitySyncComponents from " << m_Player.name << std::endl;
+
+    auto entity = m_Game.findEntity(data.entity);
+    if (entity == UINT32_MAX) {
+        logger.warning() << "received unknown network ID " << data.entity << std::endl;
+        // TODO: send error packet
+        return;
+    }
+
+    // Note: when synchronizing components, only shared
+    // components are considered. The client may send
+    // extra components in the entity's signature, but
+    // those are completely ignored.
+    auto signature = m_Game.m_Engine.entitySignature(entity) & Protecs::Components::Manager::mask();
+
+    m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::EntitySyncComponents{
+        .entity    = data.entity,
+        .signature = signature,
+    });
+
+    for (std::size_t i = 0; i < Wrecks::Utils::container_elements_v<Protecs::Components::Manager>; i++) {
+        if (signature.test(i) == data.signature.test(i))
+            continue;
+
+        bool componentIsMissing = signature.test(i) && !data.signature.test(i);
+
+        if (componentIsMissing) {
+            // component missing, add it
+            Wrecks::Utils::visitType<Protecs::Components::Variant>([&](auto type){
+                using Component = decltype(type)::type;
+                m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::EntityComponentData{
+                    .entity = data.entity,
+                    .component = m_Game.m_Engine.get<Component>()[entity],
+                });
+            }, i);
+        } else {
+            // component superfluous, remove it
+            m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::EntityRemoveComponent{
+                .entity = data.entity,
+                .type = static_cast<Protecs::ComponentType>(i),
+            });
+        }
+    }
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::Ping& data)
