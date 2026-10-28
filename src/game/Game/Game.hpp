@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../Engine.hpp"
+#include "protecs/common.hpp"
 #include <rtype/components.hpp>
 #include <protecs/networking.hpp>
 #include <deque>
@@ -42,6 +43,11 @@ namespace RType::Game {
             bool registerPlayer(const Protecs::Networking::Address& address, std::string_view name);
             void disconnectPlayer(const Protecs::Networking::Address& address);
 
+        private:
+            void handleEvents();
+            Wrecks::ECS::Entity findEntity(Protecs::NetworkEntity networkId) const;
+            void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
+
             template <Wrecks::Utils::ContainerContainsType<Protecs::Components::Manager> C>
             void sendSharedComponent(Wrecks::ECS::Entity entity)
             {
@@ -59,10 +65,6 @@ namespace RType::Game {
                 m_Engine.addComponent(entity, std::move(data));
                 sendSharedComponent<C>(entity);
             }
-
-        private:
-            void handleEvents();
-            void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
 
         private:
             class EventHandler {
