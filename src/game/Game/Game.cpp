@@ -311,6 +311,8 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
     m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId, .type = Packets::EntityCreate::PLAYER });
     m_Game.addSharedComponent(playerEntity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
     m_Game.addSharedComponent(playerEntity, Protecs::Components::Velocity{});
+    m_Game.addSharedComponent(playerEntity, Protecs::Components::Movement{ {}, 1.f });
+    m_Game.addSharedComponent(playerEntity, Protecs::Components::PlayerInput{});
 
     // send entity list to player
     operator()(Packets::EntityList{});
