@@ -7,3 +7,5 @@
 */
 
 #pragma once
+
+#include "../../../src/systems/BufferedInput/BufferedInput.hpp"

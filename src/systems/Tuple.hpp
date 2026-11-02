@@ -17,6 +17,6 @@
 namespace RType::Systems {
     using Tuple = Wrecks::Utils::concat_types_t<
         Protecs::Systems::Tuple,
-        std::tuple<>
+        std::tuple<BufferedInput>
     >;
 }
