@@ -37,6 +37,7 @@ auto RType::Utils::Logger::log(Level level) -> std::ostream&
 auto RType::Utils::Logger::levelFormat(Level level) noexcept -> std::string_view
 {
     switch (level) {
+        case TRACE:   return "\033[32;1m";  // magenta
         case DEBUG:   return "\033[35;1m";  // magenta
         case INFO:    return "\033[34;1m";  // blue
         case WARNING: return "\033[33;1m";  // yellow-ish orange
@@ -49,6 +50,7 @@ auto RType::Utils::Logger::levelFormat(Level level) noexcept -> std::string_view
 auto RType::Utils::Logger::levelName(Level level) noexcept -> std::string_view
 {
     switch (level) {
+        case TRACE:   return "TRACE";
         case DEBUG:   return "DEBUG";
         case INFO:    return "INFO";
         case WARNING: return "WARNING";
