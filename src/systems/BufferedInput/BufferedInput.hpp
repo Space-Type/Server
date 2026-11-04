@@ -22,7 +22,7 @@ namespace RType::Systems {
 
         private:
             void* m_Engine;
-            std::uint64_t* m_SimulationTick;
+            Protecs::Tick* m_SimulationTick;
 
         public:
             BufferedInput() noexcept;
@@ -35,7 +35,7 @@ namespace RType::Systems {
             }
 
             constexpr void setEngine(void* engine) noexcept { m_Engine = engine; }
-            constexpr void setSimulationTick(std::uint64_t& tick) noexcept { m_SimulationTick = &tick; }
+            constexpr void setSimulationTick(Protecs::Tick& tick) noexcept { m_SimulationTick = &tick; }
 
             void operator()(Wrecks::ECS::Entity entity, Wrecks::DeltaTime);
     };

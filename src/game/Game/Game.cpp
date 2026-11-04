@@ -19,11 +19,12 @@ namespace Packets = Protecs::Networking::Packets;
 RType::Game::Game::Game() noexcept
     : m_Engine()
     , m_AccumulatedDelta()
+    , m_SimulationTick(0)
     , m_Players()
     , m_IncomingEvents()
     , m_OutgoingEvents()
 {
-
+    m_Engine.get<Systems::BufferedInput>().setSimulationTick(m_SimulationTick);
 }
 
 /**
@@ -37,6 +38,7 @@ void RType::Game::Game::update(Wrecks::DeltaTime dt)
     m_AccumulatedDelta += dt;
     while (m_AccumulatedDelta >= FIXED_UPDATE_RATE) {
         m_Engine.fixedUpdate(FIXED_UPDATE_RATE);
+        m_SimulationTick++;
         m_AccumulatedDelta -= FIXED_UPDATE_RATE;
     }
 
@@ -132,6 +134,20 @@ void RType::Game::Game::disconnectPlayer(const Protecs::Networking::Address& add
     m_Players.erase(playerIt);
 
     broadcastPacket(Packets::EntityDelete{ .id = networkId });
+}
+
+/**
+ * Adds the necessary components to
+ * the given entity for it to qualify
+ * as a player.
+ */
+void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
+{
+    addSharedComponent(entity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
+    addSharedComponent(entity, Protecs::Components::Velocity{});
+    addSharedComponent(entity, Protecs::Components::Movement{ {}, 1.f });
+    addSharedComponent(entity, Protecs::Components::PlayerInput{});
+    m_Engine.addComponent(entity, Components::InputBuffer{});
 }
 
 /**
@@ -297,6 +313,9 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerId& data)
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& data)
 {
     logger.debug() << "received PlayerInput from " << m_Player.name << std::endl;
+
+    auto playerEntity = m_Game.m_Players.at(m_Player.address);
+    auto& inputs = m_Game.m_Engine.get<Components::InputBuffer>()[playerEntity];
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
@@ -308,11 +327,8 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
 
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
 
-    m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId, .type = Packets::EntityCreate::PLAYER });
-    m_Game.addSharedComponent(playerEntity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
-    m_Game.addSharedComponent(playerEntity, Protecs::Components::Velocity{});
-    m_Game.addSharedComponent(playerEntity, Protecs::Components::Movement{ {}, 1.f });
-    m_Game.addSharedComponent(playerEntity, Protecs::Components::PlayerInput{});
+    m_Game.broadcastPacket(Packets::EntityCreate{ .simulationTick = m_Game.m_SimulationTick, .id = networkId, .type = Packets::EntityCreate::PLAYER });
+    m_Game.makePlayer(playerEntity);
 
     // send entity list to player
     operator()(Packets::EntityList{});
