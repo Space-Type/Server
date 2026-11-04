@@ -16,7 +16,7 @@ static std::ostream VOID_STREAM(nullptr);
 
 RType::Utils::Logger::Logger(std::ostream& output) noexcept
     : m_Output(&output)
-    , m_BaseLevel(DEBUG)
+    , m_BaseLevel(TRACE)
 {
 
 }
