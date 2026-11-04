@@ -44,7 +44,6 @@ set(SOURCES
     src/systems/BufferedInput/BufferedInput.cpp
     src/systems/BufferedInput/BufferedInput.hpp
     src/systems/Tuple.hpp
-    src/threads/ThreadQueue.hpp
     src/utils/Logger/Logger.cpp
     src/utils/Logger/Logger.hpp
     src/utils/SignalHandler.hpp
