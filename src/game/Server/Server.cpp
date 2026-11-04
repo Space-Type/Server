@@ -86,7 +86,12 @@ void RType::Game::Server::update(Wrecks::DeltaTime dt)
 
     while (request) {
         auto& [sender, packet] = *request;
-        m_Game.pushEvent(sender, std::move(packet));
+
+        try {
+            m_Game.pushEvent(sender, packet.deserialize());
+        } catch (const Protecs::SerializationError& err) {
+            logger.warning() << "failed to deserialize packet from " << sender << std::endl;
+        }
 
         request = m_PendingRequests.pop();
     }
@@ -110,7 +115,7 @@ void RType::Game::Server::receiveRequests()
 
     m_Socket.receive(packet, &senderAddr);
     logger.trace() << "received " << packet << " from " << senderAddr << std::endl;
-    m_PendingRequests.push({ senderAddr, packet.deserialize() });
+    m_PendingRequests.push(senderAddr, packet);
 }
 
 
