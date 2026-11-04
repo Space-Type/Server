@@ -208,22 +208,22 @@ RType::Game::Game::EventHandler::EventHandler(Game& game, Components::Player& pl
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityComponentData& data)
 {
-    logger.debug() << "received EntityComponentData from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityCreate& data)
 {
-    logger.debug() << "received EntityCreate from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityDelete& data)
 {
-    logger.debug() << "received EntityDelete from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data)
 {
-    logger.debug() << "received EntityList from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     Packets::EntityList entityList;
 
@@ -241,12 +241,12 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityRemoveComponent& data)
 {
-    logger.debug() << "received EntityRemoveComponent from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntitySyncComponents& data)
 {
-    logger.debug() << "received EntitySyncComponents from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     auto entity = m_Game.findEntity(data.entity);
     if (entity == UINT32_MAX) {
@@ -293,12 +293,12 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntitySyncCompon
 
 void RType::Game::Game::EventHandler::operator()(const Packets::Ping& data)
 {
-    logger.debug() << "received Ping from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerId& data)
 {
-    logger.debug() << "received PlayerId from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
@@ -312,7 +312,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerId& data)
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& data)
 {
-    logger.debug() << "received PlayerInput from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto& inputs = m_Game.m_Engine.get<Components::InputBuffer>()[playerEntity];
@@ -320,7 +320,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& dat
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
 {
-    logger.debug() << "received PlayerJoin from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
@@ -336,7 +336,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
 {
-    logger.debug() << "received PlayerLeave from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     m_Game.disconnectPlayer(m_Player.address);
 }

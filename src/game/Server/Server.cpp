@@ -77,7 +77,7 @@ void RType::Game::Server::update(Wrecks::DeltaTime dt)
         auto& [player, data] = evt;
 
         auto packet = Protecs::Networking::Packet::serialize(data);
-        logger.debug() << "sending packet to " << player->address << " (" << packet.filled << "B)" << std::endl;
+        logger.trace() << "sending " << packet << " to " << player->address << std::endl;
         m_Socket.send(packet, player->address);
     }
 
@@ -109,7 +109,7 @@ void RType::Game::Server::receiveRequests()
     Protecs::Networking::Packet packet = {};
 
     m_Socket.receive(packet, &senderAddr);
-    logger.debug() << "received packet from " << senderAddr << " (" << packet.filled << "B)" << std::endl;
+    logger.trace() << "received " << packet << " from " << senderAddr << std::endl;
     m_PendingRequests.push({ senderAddr, packet.deserialize() });
 }
 
