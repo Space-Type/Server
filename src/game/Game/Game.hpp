@@ -12,6 +12,7 @@
 #include "protecs/common.hpp"
 #include <rtype/components.hpp>
 #include <protecs/networking.hpp>
+#include <functional>
 #include <deque>
 
 
@@ -33,8 +34,13 @@ namespace RType::Game {
             std::deque<InternalEvent> m_IncomingEvents;
             std::deque<Event> m_OutgoingEvents;
 
+            std::function<void(Protecs::Tick)> m_PullEvents;
+
         public:
             Game() noexcept;
+
+            template <typename Fnc>
+            void setEventRetriever(Fnc&& fnc) { m_PullEvents = std::move(fnc); }
 
             void update(Wrecks::DeltaTime dt);
 
@@ -47,7 +53,7 @@ namespace RType::Game {
         private:
             void makePlayer(Wrecks::ECS::Entity entity);
 
-            void handleEvents();
+            void handleEvents(Protecs::Tick tick);
             Wrecks::ECS::Entity findEntity(Protecs::NetworkEntity networkId) const;
             void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
 

@@ -8,6 +8,7 @@
 
 #include "Game.hpp"
 #include "protecs/common.hpp"
+#include <chrono>
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
 #include <variant>
@@ -23,6 +24,7 @@ RType::Game::Game::Game() noexcept
     , m_Players()
     , m_IncomingEvents()
     , m_OutgoingEvents()
+    , m_PullEvents()
 {
     m_Engine.get<Systems::BufferedInput>().setSimulationTick(m_SimulationTick);
 }
@@ -33,10 +35,11 @@ RType::Game::Game::Game() noexcept
  */
 void RType::Game::Game::update(Wrecks::DeltaTime dt)
 {
-    handleEvents();
+    handleEvents(0);
 
     m_AccumulatedDelta += dt;
     while (m_AccumulatedDelta >= FIXED_UPDATE_RATE) {
+        handleEvents(m_SimulationTick);
         m_Engine.fixedUpdate(FIXED_UPDATE_RATE);
         m_SimulationTick++;
         m_AccumulatedDelta -= FIXED_UPDATE_RATE;
@@ -154,8 +157,10 @@ void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
  * Handles any and all external
  * events queued by the server.
  */
-void RType::Game::Game::handleEvents()
+void RType::Game::Game::handleEvents(Protecs::Tick tick)
 {
+    m_PullEvents(tick);
+
     while (!m_IncomingEvents.empty()) {
         auto& [player, data] = m_IncomingEvents.front();
         if (!player)
@@ -225,7 +230,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data
 {
     logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
-    Packets::EntityList entityList;
+    Packets::EntityList entityList = { .simulationTick = m_Game.m_SimulationTick, .entities = {} };
 
     entityList.entities.reserve(m_Game.m_Engine.entities().size());
     for (auto [entity, serverSig] : m_Game.m_Engine.entities()) {
