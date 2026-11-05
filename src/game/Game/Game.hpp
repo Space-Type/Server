@@ -95,6 +95,7 @@ namespace RType::Game {
                     void operator()(const Protecs::Networking::Packets::PlayerInput& data);
                     void operator()(const Protecs::Networking::Packets::PlayerJoin& data);
                     void operator()(const Protecs::Networking::Packets::PlayerLeave& data);
+                    void operator()(const Protecs::Networking::Packets::TickSync& data);
             };
     };
 }

@@ -345,3 +345,14 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& dat
 
     m_Game.disconnectPlayer(m_Player.address);
 }
+
+void RType::Game::Game::EventHandler::operator()(const Packets::TickSync& data)
+{
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
+
+    m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::TickSync{
+        .clientTick = data.clientTick,
+        .serverTick = m_Game.m_SimulationTick,
+        .serverTime = std::chrono::steady_clock::now(),
+    });
+}
