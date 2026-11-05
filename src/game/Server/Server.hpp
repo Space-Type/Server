@@ -39,6 +39,8 @@ namespace RType::Game {
 
         private:
             void receiveRequests();
+            void sendOutgoingEvents();
+            void handleIncomingEvents(Protecs::Tick simulationTick);
 
         public:
             class Builder {

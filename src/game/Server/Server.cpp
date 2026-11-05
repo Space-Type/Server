@@ -21,6 +21,8 @@ RType::Game::Server::Server(std::string_view host, std::uint16_t port)
     logger.debug() << "starting server" << std::endl;
     m_Socket.open(host, port);
     logger.info() << "started server on " << m_Socket.address() << std::endl;
+
+    m_Game.setEventRetriever([&](Protecs::Tick simulationTick){ handleIncomingEvents(simulationTick); });
 }
 
 RType::Game::Server::Server(Server&& other)
@@ -70,41 +72,26 @@ void RType::Game::Server::run()
 
 void RType::Game::Server::update(Wrecks::DeltaTime dt)
 {
-    // Send all outgoing events
-    Game::Game::Event evt;
-
-    while (m_Game.popEvent(evt)) {
-        auto& [player, data] = evt;
-
-        auto packet = Protecs::Networking::Packet::serialize(data);
-        logger.trace() << "sending " << packet << " to " << player->address << std::endl;
-        m_Socket.send(packet, player->address);
-    }
-
-    // Handle all incoming events
-    auto request = m_PendingRequests.pop();
-
-    while (request) {
-        auto& [sender, packet] = *request;
-
-        try {
-            m_Game.pushEvent(sender, packet.deserialize());
-        } catch (const Protecs::SerializationError& err) {
-            logger.warning() << "failed to deserialize packet from " << sender << std::endl;
-        }
-
-        request = m_PendingRequests.pop();
-    }
-
-    // Update game
+    sendOutgoingEvents();
     m_Game.update(dt);
 }
 
 void RType::Game::Server::swap(Server& other)
 {
     std::swap(m_Socket, other.m_Socket);
+    std::swap(m_Game, other.m_Game);
+    std::swap(m_PendingRequests, other.m_PendingRequests);
 }
 
+/**
+ * Receives packets from anyone and
+ * stores them in the pending requests
+ * buffer.
+ *
+ * Note:
+ * This function should only be called
+ * in a separate thread.
+ */
 void RType::Game::Server::receiveRequests()
 {
     if (!m_Socket.pollReceive(POLL_TIMEOUT))
@@ -116,6 +103,43 @@ void RType::Game::Server::receiveRequests()
     m_Socket.receive(packet, &senderAddr);
     logger.trace() << "received " << packet << " from " << senderAddr << std::endl;
     m_PendingRequests.push(senderAddr, packet);
+}
+
+/**
+ * Sends all queued outgoing
+ * events to their recipients.
+ */
+void RType::Game::Server::sendOutgoingEvents()
+{
+    Game::Game::Event evt;
+
+    while (m_Game.popEvent(evt)) {
+        auto& [player, data] = evt;
+
+        auto packet = Protecs::Networking::Packet::serialize(data);
+        logger.trace() << "sending " << packet << " to " << player->address << std::endl;
+        m_Socket.send(packet, player->address);
+    }
+}
+
+/**
+ * Handles all incoming events up to
+ * the current simulation tick.
+ */
+void RType::Game::Server::handleIncomingEvents(Protecs::Tick simulationTick)
+{
+    auto request = m_PendingRequests.pop(simulationTick);
+    while (request) {
+        auto& [sender, packet] = *request;
+
+        try {
+            m_Game.pushEvent(sender, packet.deserialize());
+        } catch (const Protecs::SerializationError& err) {
+            logger.warning() << "failed to deserialize packet from " << sender << std::endl;
+        }
+
+        request = m_PendingRequests.pop(simulationTick);
+    }
 }
 
 
