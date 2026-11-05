@@ -18,8 +18,6 @@
 
 namespace RType::Game {
     class Game {
-        static constexpr auto FIXED_UPDATE_RATE = Wrecks::DeltaTime(2.0 / 120.0);
-
         using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
 
         public:

@@ -7,7 +7,6 @@
 */
 
 #include "Game.hpp"
-#include "protecs/common.hpp"
 #include <chrono>
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
@@ -38,11 +37,11 @@ void RType::Game::Game::update(Wrecks::DeltaTime dt)
     handleEvents(0);
 
     m_AccumulatedDelta += dt;
-    while (m_AccumulatedDelta >= FIXED_UPDATE_RATE) {
+    while (m_AccumulatedDelta >= Protecs::FIXED_UPDATE_RATE) {
         handleEvents(m_SimulationTick);
-        m_Engine.fixedUpdate(FIXED_UPDATE_RATE);
+        m_Engine.fixedUpdate(Protecs::FIXED_UPDATE_RATE);
         m_SimulationTick++;
-        m_AccumulatedDelta -= FIXED_UPDATE_RATE;
+        m_AccumulatedDelta -= Protecs::FIXED_UPDATE_RATE;
     }
 
     m_Engine.update(dt);
@@ -327,10 +326,14 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
 {
     logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
+
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
 
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
+
+    // send simulation tick sync to player
+    operator()(Packets::TickSync{ .clientTick = 0 });
 
     m_Game.broadcastPacket(Packets::EntityCreate{ .simulationTick = m_Game.m_SimulationTick, .id = networkId, .type = Packets::EntityCreate::PLAYER });
     m_Game.makePlayer(playerEntity);
@@ -348,8 +351,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& dat
 
 void RType::Game::Game::EventHandler::operator()(const Packets::TickSync& data)
 {
-    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
-
+    // Don't log since it's too much, even for debug
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::TickSync{
         .clientTick = data.clientTick,
         .serverTick = m_Game.m_SimulationTick,
