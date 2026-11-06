@@ -8,5 +8,6 @@
 
 #pragma once
 
+#include "../../../src/components/InputBuffer/InputBuffer.hpp"
 #include "../../../src/components/NetworkID/NetworkID.hpp"
 #include "../../../src/components/Player/Player.hpp"

@@ -15,7 +15,8 @@ namespace RType::Utils {
     class Logger {
         public:
             enum Level {
-                DEBUG = 0,
+                TRACE = 0,
+                DEBUG,
                 INFO,
                 WARNING,
                 ERROR,
@@ -32,6 +33,7 @@ namespace RType::Utils {
             inline void setLevel(Level level) noexcept { m_BaseLevel = level; }
             inline void setOutput(std::ostream& stream) noexcept { m_Output = &stream; }
 
+            inline std::ostream& trace()   { return log(TRACE); }
             inline std::ostream& debug()   { return log(DEBUG); }
             inline std::ostream& info()    { return log(INFO); }
             inline std::ostream& warning() { return log(WARNING); }

@@ -7,7 +7,7 @@
 */
 
 #include "Game.hpp"
-#include "protecs/common.hpp"
+#include <chrono>
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
 #include <variant>
@@ -18,12 +18,15 @@ namespace Packets = Protecs::Networking::Packets;
 
 RType::Game::Game::Game() noexcept
     : m_Engine()
-    , m_AccumulatedDelta()
+    , m_FixedUpdateElapsedTime(0)
+    , m_NetworkUpdateElapsedTime(0)
+    , m_SimulationTick(0)
     , m_Players()
     , m_IncomingEvents()
     , m_OutgoingEvents()
+    , m_PullEvents()
 {
-
+    m_Engine.get<Systems::BufferedInput>().setSimulationTick(m_SimulationTick);
 }
 
 /**
@@ -32,15 +35,24 @@ RType::Game::Game::Game() noexcept
  */
 void RType::Game::Game::update(Wrecks::DeltaTime dt)
 {
-    handleEvents();
+    m_FixedUpdateElapsedTime   += dt;
+    m_NetworkUpdateElapsedTime += dt;
 
-    m_AccumulatedDelta += dt;
-    while (m_AccumulatedDelta >= FIXED_UPDATE_RATE) {
-        m_Engine.fixedUpdate(FIXED_UPDATE_RATE);
-        m_AccumulatedDelta -= FIXED_UPDATE_RATE;
+    handleEvents(0);
+
+    while (m_FixedUpdateElapsedTime >= Protecs::FIXED_UPDATE_RATE) {
+        handleEvents(m_SimulationTick);
+        m_Engine.fixedUpdate(Protecs::FIXED_UPDATE_RATE);
+        m_SimulationTick++;
+        m_FixedUpdateElapsedTime -= Protecs::FIXED_UPDATE_RATE;
     }
 
     m_Engine.update(dt);
+
+    if (m_NetworkUpdateElapsedTime >= NETWORK_UPDATE_RATE) {
+        updateNetwork();
+        m_NetworkUpdateElapsedTime = m_NetworkUpdateElapsedTime.zero();
+    }
 }
 
 /**
@@ -58,24 +70,24 @@ bool RType::Game::Game::pushEvent(const Protecs::Networking::Address& sender, Pa
             return false;
     }
 
-    auto playerIt = m_Players.find(sender);
-    if (playerIt == m_Players.end()) {
-        logger.warning() << "rejected request from " << sender << " (not a player)" << std::endl;
-        return false;
-    }
+auto playerIt = m_Players.find(sender);
+if (playerIt == m_Players.end()) {
+    logger.warning() << "rejected request from " << sender << " (not a player)" << std::endl;
+    return false;
+}
 
-    auto& player = m_Engine.get<Components::Player>()[playerIt->second];
+auto& player = m_Engine.get<Components::Player>()[playerIt->second];
 
-    m_IncomingEvents.emplace_back(&player, std::move(data));
-    return true;
+m_IncomingEvents.emplace_back(&player, std::move(data));
+return true;
 }
 
 /**
- * Pops an internal event from
- * the game's internal event queue.
- *
- * Events may be pushed onto this
- * queue by the Game on update().
+* Pops an internal event from
+* the game's internal event queue.
+*
+* Events may be pushed onto this
+* queue by the Game on update().
  */
 bool RType::Game::Game::popEvent(Event& data)
 {
@@ -138,8 +150,10 @@ void RType::Game::Game::disconnectPlayer(const Protecs::Networking::Address& add
  * Handles any and all external
  * events queued by the server.
  */
-void RType::Game::Game::handleEvents()
+void RType::Game::Game::handleEvents(Protecs::Tick tick)
 {
+    m_PullEvents(tick);
+
     while (!m_IncomingEvents.empty()) {
         auto& [player, data] = m_IncomingEvents.front();
         if (!player)
@@ -149,6 +163,49 @@ void RType::Game::Game::handleEvents()
 
         m_IncomingEvents.pop_front();
     }
+}
+
+/**
+ * Sends entity component data
+ * to all connected players.
+ */
+void RType::Game::Game::updateNetwork()
+{
+    constexpr std::size_t protecsComponentCount = Wrecks::Utils::container_elements_v<Protecs::Components::Manager>;
+
+    for (std::size_t componentIndex = 0; componentIndex < protecsComponentCount; componentIndex++) {
+        Wrecks::Utils::visitType<Protecs::Components::Variant>([&](auto type){
+            using Component = decltype(type)::type;
+
+            if constexpr (std::is_same_v<Component, Protecs::Components::PlayerInput>)
+                return;
+
+            auto& componentData = m_Engine.get<Component>();
+
+            for (auto [entity, data] : componentData) {
+                auto networkEntity = m_Engine.get<Components::NetworkID>()[entity].id;
+                broadcastPacket(Packets::EntityComponentData{
+                    .simulationTick = m_SimulationTick,
+                    .entity = networkEntity,
+                    .component = data,
+                });
+            }
+        }, componentIndex);
+    }
+}
+
+/**
+ * Adds the necessary components to
+ * the given entity for it to qualify
+ * as a player.
+ */
+void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
+{
+    addSharedComponent(entity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
+    addSharedComponent(entity, Protecs::Components::Velocity{});
+    addSharedComponent(entity, Protecs::Components::Movement{ {}, 1.f });
+    addSharedComponent(entity, Protecs::Components::PlayerInput{});
+    m_Engine.addComponent(entity, Components::InputBuffer{});
 }
 
 /**
@@ -192,24 +249,24 @@ RType::Game::Game::EventHandler::EventHandler(Game& game, Components::Player& pl
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityComponentData& data)
 {
-    logger.debug() << "received EntityComponentData from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityCreate& data)
 {
-    logger.debug() << "received EntityCreate from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityDelete& data)
 {
-    logger.debug() << "received EntityDelete from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " from " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data)
 {
-    logger.debug() << "received EntityList from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
-    Packets::EntityList entityList;
+    Packets::EntityList entityList = { .simulationTick = m_Game.m_SimulationTick, .entities = {} };
 
     entityList.entities.reserve(m_Game.m_Engine.entities().size());
     for (auto [entity, serverSig] : m_Game.m_Engine.entities()) {
@@ -225,12 +282,12 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityRemoveComponent& data)
 {
-    logger.debug() << "received EntityRemoveComponent from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::EntitySyncComponents& data)
 {
-    logger.debug() << "received EntitySyncComponents from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     auto entity = m_Game.findEntity(data.entity);
     if (entity == UINT32_MAX) {
@@ -277,12 +334,12 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntitySyncCompon
 
 void RType::Game::Game::EventHandler::operator()(const Packets::Ping& data)
 {
-    logger.debug() << "received Ping from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerId& data)
 {
-    logger.debug() << "received PlayerId from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
@@ -296,21 +353,32 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerId& data)
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& data)
 {
-    logger.debug() << "received PlayerInput from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
+
+    if (data.simulationTick < m_Game.m_SimulationTick) {
+        logger.warning() << "ignoring input for past tick from " << m_Player.name << std::endl;
+        return;
+    }
+
+    auto playerEntity = m_Game.m_Players.at(m_Player.address);
+    auto& inputs = m_Game.m_Engine.get<Components::InputBuffer>()[playerEntity];
+    inputs.set(m_Game.m_SimulationTick, data);
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
 {
-    logger.debug() << "received PlayerJoin from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;
 
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
 
-    m_Game.broadcastPacket(Packets::EntityCreate{ .id = networkId, .type = Packets::EntityCreate::PLAYER });
-    m_Game.addSharedComponent(playerEntity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
-    m_Game.addSharedComponent(playerEntity, Protecs::Components::Velocity{});
+    // send simulation tick sync to player
+    operator()(Packets::TickSync{ .clientTick = 0 });
+
+    m_Game.broadcastPacket(Packets::EntityCreate{ .simulationTick = m_Game.m_SimulationTick, .id = networkId, .type = Packets::EntityCreate::PLAYER });
+    m_Game.makePlayer(playerEntity);
 
     // send entity list to player
     operator()(Packets::EntityList{});
@@ -318,7 +386,17 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerLeave& data)
 {
-    logger.debug() << "received PlayerLeave from " << m_Player.name << std::endl;
+    logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
     m_Game.disconnectPlayer(m_Player.address);
+}
+
+void RType::Game::Game::EventHandler::operator()(const Packets::TickSync& data)
+{
+    // Don't log since it's too much, even for debug
+    m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::TickSync{
+        .clientTick = data.clientTick,
+        .serverTick = m_Game.m_SimulationTick,
+        .serverTime = std::chrono::steady_clock::now(),
+    });
 }

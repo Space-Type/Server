@@ -12,12 +12,13 @@
 #include "protecs/common.hpp"
 #include <rtype/components.hpp>
 #include <protecs/networking.hpp>
+#include <functional>
 #include <deque>
 
 
 namespace RType::Game {
     class Game {
-        static constexpr auto FIXED_UPDATE_RATE = Wrecks::DeltaTime(2.0 / 120.0);
+        static constexpr Wrecks::DeltaTime NETWORK_UPDATE_RATE = std::chrono::duration<double>(1.0 / 20.0);
 
         using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
 
@@ -26,14 +27,22 @@ namespace RType::Game {
 
         private:
             Engine m_Engine;
-            Wrecks::DeltaTime m_AccumulatedDelta;
+            Protecs::Tick m_SimulationTick;
+
+            Wrecks::DeltaTime m_FixedUpdateElapsedTime;
+            Wrecks::DeltaTime m_NetworkUpdateElapsedTime;
 
             std::unordered_map<Protecs::Networking::Address, Wrecks::ECS::Entity> m_Players;
             std::deque<InternalEvent> m_IncomingEvents;
             std::deque<Event> m_OutgoingEvents;
 
+            std::function<void(Protecs::Tick)> m_PullEvents;
+
         public:
             Game() noexcept;
+
+            template <typename Fnc>
+            void setEventRetriever(Fnc&& fnc) { m_PullEvents = std::move(fnc); }
 
             void update(Wrecks::DeltaTime dt);
 
@@ -44,7 +53,11 @@ namespace RType::Game {
             void disconnectPlayer(const Protecs::Networking::Address& address);
 
         private:
-            void handleEvents();
+            void handleEvents(Protecs::Tick tick);
+            void updateNetwork();
+
+            void makePlayer(Wrecks::ECS::Entity entity);
+
             Wrecks::ECS::Entity findEntity(Protecs::NetworkEntity networkId) const;
             void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
 
@@ -54,6 +67,7 @@ namespace RType::Game {
                 const auto& networkId = m_Engine.get<Components::NetworkID>()[entity];
 
                 broadcastPacket(Protecs::Networking::Packets::EntityComponentData{
+                    .simulationTick = m_SimulationTick,
                     .entity = networkId.id,
                     .component = m_Engine.get<C>()[entity],
                 });
@@ -85,6 +99,7 @@ namespace RType::Game {
                     void operator()(const Protecs::Networking::Packets::PlayerInput& data);
                     void operator()(const Protecs::Networking::Packets::PlayerJoin& data);
                     void operator()(const Protecs::Networking::Packets::PlayerLeave& data);
+                    void operator()(const Protecs::Networking::Packets::TickSync& data);
             };
     };
 }

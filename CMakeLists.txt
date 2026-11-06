@@ -29,18 +29,21 @@ endif()
 # --------------- Project Build -------------- #
 
 set(SOURCES
-    src/components/Player/Player.cpp
-    src/components/Player/Player.hpp
+    src/components/InputBuffer/InputBuffer.cpp
+    src/components/InputBuffer/InputBuffer.hpp
     src/components/NetworkID/NetworkID.cpp
     src/components/NetworkID/NetworkID.hpp
+    src/components/Player/Player.cpp
+    src/components/Player/Player.hpp
     src/components/Manager.hpp
     src/game/Game/Game.cpp
     src/game/Game/Game.hpp
     src/game/Server/Server.cpp
     src/game/Server/Server.hpp
     src/game/Engine.hpp
+    src/systems/BufferedInput/BufferedInput.cpp
+    src/systems/BufferedInput/BufferedInput.hpp
     src/systems/Tuple.hpp
-    src/threads/ThreadQueue.hpp
     src/utils/Logger/Logger.cpp
     src/utils/Logger/Logger.hpp
     src/utils/SignalHandler.hpp

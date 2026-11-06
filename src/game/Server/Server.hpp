@@ -9,7 +9,6 @@
 #pragma once
 
 #include "../Game/Game.hpp"
-#include <rtype/threads.hpp>
 #include <rtype/utils.hpp>
 #include <protecs/networking.hpp>
 #include <string_view>
@@ -22,7 +21,7 @@ namespace RType::Game {
 
         Protecs::Networking::UDPSocket m_Socket;
         Game m_Game;
-        Threads::ThreadQueue<std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>> m_PendingRequests;
+        Protecs::Networking::PacketQueue m_PendingRequests;
 
         private:
             Server(std::string_view host, std::uint16_t port);
@@ -40,6 +39,8 @@ namespace RType::Game {
 
         private:
             void receiveRequests();
+            void sendOutgoingEvents();
+            void handleIncomingEvents(Protecs::Tick simulationTick);
 
         public:
             class Builder {
