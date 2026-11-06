@@ -176,6 +176,10 @@ void RType::Game::Game::updateNetwork()
     for (std::size_t componentIndex = 0; componentIndex < protecsComponentCount; componentIndex++) {
         Wrecks::Utils::visitType<Protecs::Components::Variant>([&](auto type){
             using Component = decltype(type)::type;
+
+            if constexpr (std::is_same_v<Component, Protecs::Components::PlayerInput>)
+                return;
+
             auto& componentData = m_Engine.get<Component>();
 
             for (auto [entity, data] : componentData) {
@@ -351,14 +355,19 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& dat
 {
     logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
 
+    if (data.simulationTick < m_Game.m_SimulationTick) {
+        logger.warning() << "ignoring input for past tick from " << m_Player.name << std::endl;
+        return;
+    }
+
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto& inputs = m_Game.m_Engine.get<Components::InputBuffer>()[playerEntity];
+    inputs.set(m_Game.m_SimulationTick, data);
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
 {
     logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
-
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto networkId = m_Game.m_Engine.get<Components::NetworkID>()[playerEntity].id;

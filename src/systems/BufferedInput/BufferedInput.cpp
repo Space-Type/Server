@@ -19,10 +19,22 @@ RType::Systems::BufferedInput::BufferedInput() noexcept
 
 void RType::Systems::BufferedInput::operator()(Wrecks::ECS::Entity entity, Wrecks::DeltaTime)
 {
+    using Protecs::Networking::Packets::PlayerInput;
+
     auto& engine = *reinterpret_cast<Game::Engine*>(m_Engine);
 
     auto& buffer = engine.get<Components::InputBuffer>()[entity];
     auto& input  = engine.get<Protecs::Components::PlayerInput>()[entity];
 
-    input = buffer.get(*m_SimulationTick);
+    const auto& bufferedInput = buffer.get(*m_SimulationTick);
+    if (!bufferedInput)
+        return;
+
+    switch (bufferedInput->input) {
+        case PlayerInput::UP:      input.up      = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::DOWN:    input.down    = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::LEFT:    input.left    = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::RIGHT:   input.right   = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::TRIGGER: input.trigger = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
+    }
 }
