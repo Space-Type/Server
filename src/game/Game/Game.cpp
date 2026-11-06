@@ -34,6 +34,8 @@ RType::Game::Game::Game() noexcept
  */
 void RType::Game::Game::update(Wrecks::DeltaTime dt)
 {
+    bool shouldUpdateNetwork = m_AccumulatedDelta >= NETWORK_UPDATE_RATE;
+
     handleEvents(0);
 
     m_AccumulatedDelta += dt;
@@ -45,6 +47,9 @@ void RType::Game::Game::update(Wrecks::DeltaTime dt)
     }
 
     m_Engine.update(dt);
+
+    if (shouldUpdateNetwork)
+        updateNetwork();
 }
 
 /**
@@ -139,20 +144,6 @@ void RType::Game::Game::disconnectPlayer(const Protecs::Networking::Address& add
 }
 
 /**
- * Adds the necessary components to
- * the given entity for it to qualify
- * as a player.
- */
-void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
-{
-    addSharedComponent(entity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
-    addSharedComponent(entity, Protecs::Components::Velocity{});
-    addSharedComponent(entity, Protecs::Components::Movement{ {}, 1.f });
-    addSharedComponent(entity, Protecs::Components::PlayerInput{});
-    m_Engine.addComponent(entity, Components::InputBuffer{});
-}
-
-/**
  * Handles any and all external
  * events queued by the server.
  */
@@ -169,6 +160,44 @@ void RType::Game::Game::handleEvents(Protecs::Tick tick)
 
         m_IncomingEvents.pop_front();
     }
+}
+
+/**
+ * Sends entity component data
+ * to all connected players.
+ */
+void RType::Game::Game::updateNetwork()
+{
+    constexpr std::size_t protecsComponentCount = Wrecks::Utils::container_elements_v<Protecs::Components::Manager>;
+
+    for (std::size_t componentIndex = 0; componentIndex < protecsComponentCount; componentIndex++) {
+        Wrecks::Utils::visitType<Protecs::Components::Variant>([&](auto type){
+            using Component = decltype(type)::type;
+            auto& componentData = m_Engine.get<Component>();
+
+            for (auto [entity, data] : componentData) {
+                broadcastPacket(Packets::EntityComponentData{
+                    .simulationTick = m_SimulationTick,
+                    .entity = entity,
+                    .component = data,
+                });
+            }
+        }, componentIndex);
+    }
+}
+
+/**
+ * Adds the necessary components to
+ * the given entity for it to qualify
+ * as a player.
+ */
+void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
+{
+    addSharedComponent(entity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
+    addSharedComponent(entity, Protecs::Components::Velocity{});
+    addSharedComponent(entity, Protecs::Components::Movement{ {}, 1.f });
+    addSharedComponent(entity, Protecs::Components::PlayerInput{});
+    m_Engine.addComponent(entity, Components::InputBuffer{});
 }
 
 /**

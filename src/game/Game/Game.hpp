@@ -18,6 +18,8 @@
 
 namespace RType::Game {
     class Game {
+        static constexpr auto NETWORK_UPDATE_RATE = Wrecks::DeltaTime(1.0 / 30.0);
+
         using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
 
         public:
@@ -49,9 +51,11 @@ namespace RType::Game {
             void disconnectPlayer(const Protecs::Networking::Address& address);
 
         private:
+            void handleEvents(Protecs::Tick tick);
+            void updateNetwork();
+
             void makePlayer(Wrecks::ECS::Entity entity);
 
-            void handleEvents(Protecs::Tick tick);
             Wrecks::ECS::Entity findEntity(Protecs::NetworkEntity networkId) const;
             void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
 
