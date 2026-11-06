@@ -18,7 +18,8 @@ namespace Packets = Protecs::Networking::Packets;
 
 RType::Game::Game::Game() noexcept
     : m_Engine()
-    , m_AccumulatedDelta()
+    , m_FixedUpdateElapsedTime(0)
+    , m_NetworkUpdateElapsedTime(0)
     , m_SimulationTick(0)
     , m_Players()
     , m_IncomingEvents()
@@ -34,22 +35,24 @@ RType::Game::Game::Game() noexcept
  */
 void RType::Game::Game::update(Wrecks::DeltaTime dt)
 {
-    bool shouldUpdateNetwork = m_AccumulatedDelta >= NETWORK_UPDATE_RATE;
+    m_FixedUpdateElapsedTime   += dt;
+    m_NetworkUpdateElapsedTime += dt;
 
     handleEvents(0);
 
-    m_AccumulatedDelta += dt;
-    while (m_AccumulatedDelta >= Protecs::FIXED_UPDATE_RATE) {
+    while (m_FixedUpdateElapsedTime >= Protecs::FIXED_UPDATE_RATE) {
         handleEvents(m_SimulationTick);
         m_Engine.fixedUpdate(Protecs::FIXED_UPDATE_RATE);
         m_SimulationTick++;
-        m_AccumulatedDelta -= Protecs::FIXED_UPDATE_RATE;
+        m_FixedUpdateElapsedTime -= Protecs::FIXED_UPDATE_RATE;
     }
 
     m_Engine.update(dt);
 
-    if (shouldUpdateNetwork)
+    if (m_NetworkUpdateElapsedTime >= NETWORK_UPDATE_RATE) {
         updateNetwork();
+        m_NetworkUpdateElapsedTime = m_NetworkUpdateElapsedTime.zero();
+    }
 }
 
 /**
@@ -67,24 +70,24 @@ bool RType::Game::Game::pushEvent(const Protecs::Networking::Address& sender, Pa
             return false;
     }
 
-    auto playerIt = m_Players.find(sender);
-    if (playerIt == m_Players.end()) {
-        logger.warning() << "rejected request from " << sender << " (not a player)" << std::endl;
-        return false;
-    }
+auto playerIt = m_Players.find(sender);
+if (playerIt == m_Players.end()) {
+    logger.warning() << "rejected request from " << sender << " (not a player)" << std::endl;
+    return false;
+}
 
-    auto& player = m_Engine.get<Components::Player>()[playerIt->second];
+auto& player = m_Engine.get<Components::Player>()[playerIt->second];
 
-    m_IncomingEvents.emplace_back(&player, std::move(data));
-    return true;
+m_IncomingEvents.emplace_back(&player, std::move(data));
+return true;
 }
 
 /**
- * Pops an internal event from
- * the game's internal event queue.
- *
- * Events may be pushed onto this
- * queue by the Game on update().
+* Pops an internal event from
+* the game's internal event queue.
+*
+* Events may be pushed onto this
+* queue by the Game on update().
  */
 bool RType::Game::Game::popEvent(Event& data)
 {
@@ -176,9 +179,10 @@ void RType::Game::Game::updateNetwork()
             auto& componentData = m_Engine.get<Component>();
 
             for (auto [entity, data] : componentData) {
+                auto networkEntity = m_Engine.get<Components::NetworkID>()[entity].id;
                 broadcastPacket(Packets::EntityComponentData{
                     .simulationTick = m_SimulationTick,
-                    .entity = entity,
+                    .entity = networkEntity,
                     .component = data,
                 });
             }
