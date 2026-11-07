@@ -13,12 +13,16 @@
 #include <rtype/components.hpp>
 #include <protecs/networking.hpp>
 #include <functional>
+#include <chrono>
 #include <deque>
+#include <random>
+#include <vector>
 
 
 namespace RType::Game {
     class Game {
         static constexpr Wrecks::DeltaTime NETWORK_UPDATE_RATE = std::chrono::duration<double>(1.0 / 20.0);
+        static constexpr Wrecks::DeltaTime GAMEPLAY_RATE = std::chrono::duration<double>(1.0 / 60.0);
 
         using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
 
@@ -37,6 +41,12 @@ namespace RType::Game {
             std::deque<Event> m_OutgoingEvents;
 
             std::function<void(Protecs::Tick)> m_PullEvents;
+
+            // Gameplay (Gameplay.cpp)
+            Wrecks::DeltaTime m_GameplayElapsedTime{};
+            float m_EnemySpawnTimer = 1.0F;  // seconds
+            std::minstd_rand m_Random{ static_cast<std::uint_fast32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) };
+            std::vector<Wrecks::ECS::Entity> m_Destroyed;  // deleted at the end of the gameplay step
 
         public:
             Game() noexcept;
@@ -57,6 +67,21 @@ namespace RType::Game {
             void updateNetwork();
 
             void makePlayer(Wrecks::ECS::Entity entity);
+
+            // Gameplay (Gameplay.cpp)
+            void updateGameplay(Wrecks::DeltaTime dt);
+            void stepGameplay(float seconds);
+            void initPlayerGameplay(Wrecks::ECS::Entity player);
+            Wrecks::ECS::Entity spawn(Protecs::Networking::Packets::EntityCreate::EntityType type,
+                                      Protecs::Utils::Vec2D<float> position, Protecs::Utils::Vec2D<float> size,
+                                      Protecs::Utils::Vec2D<float> velocity, Wrecks::ECS::Entity owner = 0);
+            void spawnEnemies(float seconds);
+            void shoot(float seconds);
+            void moveBodies(float seconds);
+            void collide();
+            void hitPlayer(Wrecks::ECS::Entity player);
+            void destroyLater(Wrecks::ECS::Entity entity);
+            void destroyQueued();
 
             Wrecks::ECS::Entity findEntity(Protecs::NetworkEntity networkId) const;
             void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);

@@ -39,6 +39,7 @@ set(SOURCES
     src/components/Manager.hpp
     src/game/Game/Game.cpp
     src/game/Game/Game.hpp
+    src/game/Game/Gameplay.cpp
     src/game/Server/Server.cpp
     src/game/Server/Server.hpp
     src/game/Engine.hpp

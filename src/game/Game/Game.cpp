@@ -47,6 +47,8 @@ void RType::Game::Game::update(Wrecks::DeltaTime dt)
         m_FixedUpdateElapsedTime -= Protecs::FIXED_UPDATE_RATE;
     }
 
+    updateGameplay(dt);
+
     m_Engine.update(dt);
 
     if (m_NetworkUpdateElapsedTime >= NETWORK_UPDATE_RATE) {
@@ -207,6 +209,7 @@ void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
     addSharedComponent(entity, Protecs::Components::PlayerInput{});
     addSharedComponent(entity, Protecs::Components::PlayerName::fromStr(m_Engine.get<Components::Player>()[entity].name));
     m_Engine.addComponent(entity, Components::InputBuffer{});
+    initPlayerGameplay(entity);
 }
 
 /**
