@@ -29,6 +29,7 @@ endif()
 # --------------- Project Build -------------- #
 
 set(SOURCES
+    src/components/Body/Body.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/InputBuffer/InputBuffer.hpp
     src/components/NetworkID/NetworkID.cpp
