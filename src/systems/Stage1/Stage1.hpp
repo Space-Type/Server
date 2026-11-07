@@ -36,6 +36,7 @@ namespace RType::Systems {
             Game::Requests* m_Requests;
             Rules::Random m_Random;
             const std::vector<Game::Wave>* m_Waves = nullptr;
+            float m_Speed = 1.0F;  // developer option --speed
 
         public:
             Stage1() noexcept;
@@ -51,6 +52,7 @@ namespace RType::Systems {
             constexpr void setRequests(Game::Requests& requests) noexcept { m_Requests = &requests; }
             inline void seed(std::uint32_t seed) noexcept { m_Random.seed(seed); }
             constexpr void setWaves(const std::vector<Game::Wave>& waves) noexcept { m_Waves = &waves; }
+            constexpr void setSpeed(float speed) noexcept { m_Speed = speed; }
 
             void operator()(Wrecks::ECS::Entity entity, Wrecks::DeltaTime dt);
     };

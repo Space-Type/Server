@@ -17,6 +17,7 @@
 #include <deque>
 #include "../Requests/Requests.hpp"
 #include "../Waves/Waves.hpp"
+#include "../DevOptions/DevOptions.hpp"
 #include <optional>
 #include <vector>
 
@@ -49,6 +50,7 @@ namespace RType::Game {
             Requests m_Requests;                    // asked by the systems, applied after each fixed update
             std::optional<Wrecks::ECS::Entity> m_Level;  // exists while at least one player is connected
             std::vector<Wave> m_Stage1Waves;              // assets/stages/stage-1.waves
+            DevOptions m_Dev;
 
         public:
             Game() noexcept;
@@ -57,6 +59,9 @@ namespace RType::Game {
             void setEventRetriever(Fnc&& fnc) { m_PullEvents = std::move(fnc); }
 
             void update(Wrecks::DeltaTime dt);
+
+            // Cheats to test a level (off by default), logged as a warning when on
+            void setDevOptions(const DevOptions& dev);
 
             bool pushEvent(const Protecs::Networking::Address& sender, Protecs::Networking::Packets::PacketData&& data);
             bool popEvent(Event& evt);

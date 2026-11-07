@@ -30,7 +30,7 @@ void RType::Systems::Stage1::operator()(Wrecks::ECS::Entity entity, Wrecks::Delt
     if (level.stage != 1)
         return;
 
-    state.distance += Rules::SCROLL_SPEED * seconds;
+    state.distance += Rules::SCROLL_SPEED * m_Speed * seconds;
     level.progression = static_cast<std::uint32_t>(state.distance);
     if (level.progression >= Rules::STAGE1_LENGTH) {
         logger.info() << "stage 1 cleared, going on to stage 2" << std::endl;

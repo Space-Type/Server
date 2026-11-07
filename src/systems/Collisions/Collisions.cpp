@@ -102,7 +102,7 @@ void RType::Systems::Collisions::hitPlayer(Wrecks::ECS::Entity player)
     auto& body = engine.get<Components::Body>()[player];
     auto& transform = engine.get<Protecs::Components::Transform>()[player];
 
-    if (body.out || body.invulnerable > 0.0F)
+    if (body.out || body.invulnerable > 0.0F || m_Invincible)
         return;
 
     for (auto [other, unused] : engine.get<Components::Body>()) {

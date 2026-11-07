@@ -38,6 +38,8 @@ set(SOURCES
     src/components/Player/Player.cpp
     src/components/Player/Player.hpp
     src/components/Manager.hpp
+    src/game/DevOptions/DevOptions.cpp
+    src/game/DevOptions/DevOptions.hpp
     src/game/Game/Game.cpp
     src/game/Game/Game.hpp
     src/game/Game/Level.cpp

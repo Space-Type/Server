@@ -32,6 +32,7 @@ namespace RType::Systems {
         private:
             void* m_Engine;
             Game::Requests* m_Requests;
+            bool m_Invincible = false;  // developer option --god
 
         public:
             Collisions() noexcept;
@@ -45,6 +46,7 @@ namespace RType::Systems {
 
             constexpr void setEngine(void* engine) noexcept { m_Engine = engine; }
             constexpr void setRequests(Game::Requests& requests) noexcept { m_Requests = &requests; }
+            constexpr void setInvincible(bool invincible) noexcept { m_Invincible = invincible; }
 
             void operator()(Wrecks::ECS::Entity entity, Wrecks::DeltaTime dt);
 

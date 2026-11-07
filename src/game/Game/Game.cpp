@@ -29,6 +29,7 @@ RType::Game::Game::Game() noexcept
     , m_Requests()
     , m_Level()
     , m_Stage1Waves(loadWaves("stage-1.waves"))
+    , m_Dev()
 {
     auto seed = static_cast<std::uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count());
 

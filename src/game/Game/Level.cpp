@@ -85,9 +85,15 @@ void RType::Game::Game::startLevel()
 
     m_Level = level;
     m_Engine.addComponent(level, Components::NetworkID{ networkId });
-    m_Engine.addComponent(level, Components::LevelState{});
+    // --start: the waves before the starting progression are skipped, not all spawned at once
+    auto firstWave = std::ranges::lower_bound(m_Stage1Waves, m_Dev.start, {}, &Wave::progression);
+
+    m_Engine.addComponent(level, Components::LevelState{
+        .distance = static_cast<float>(m_Dev.start),
+        .nextWave = static_cast<std::size_t>(firstWave - m_Stage1Waves.begin()),
+    });
     broadcastPacket(Packets::EntityCreate{ .simulationTick = m_SimulationTick, .id = networkId.id, .type = Packets::EntityCreate::GENERIC });
-    addSharedComponent(level, Protecs::Components::Level{ .progression = 0, .stage = 1 });
+    addSharedComponent(level, Protecs::Components::Level{ .progression = m_Dev.start, .stage = 1 });
     logger.info() << "level started" << std::endl;
 }
 
@@ -111,4 +117,14 @@ void RType::Game::Game::endLevel()
     m_Requests.destroys.clear();
     m_Level.reset();
     logger.info() << "level ended (no player left)" << std::endl;
+}
+
+void RType::Game::Game::setDevOptions(const DevOptions& dev)
+{
+    m_Dev = dev;
+    m_Engine.get<Systems::Collisions>().setInvincible(dev.god);
+    m_Engine.get<Systems::Stage1>().setSpeed(dev.speed);
+    if (dev.any())
+        logger.warning() << "developer options on: god " << (dev.god ? "on" : "off") << ", speed x" << dev.speed
+                         << ", start at " << dev.start << " (never on a real server)" << std::endl;
 }

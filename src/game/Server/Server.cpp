@@ -13,7 +13,7 @@
 
 
 
-RType::Game::Server::Server(std::string_view host, std::uint16_t port)
+RType::Game::Server::Server(std::string_view host, std::uint16_t port, const DevOptions& dev)
     : m_Socket()
     , m_Game()
     , m_PendingRequests()
@@ -23,6 +23,7 @@ RType::Game::Server::Server(std::string_view host, std::uint16_t port)
     logger.info() << "started server on " << m_Socket.address() << std::endl;
 
     m_Game.setEventRetriever([&](Protecs::Tick simulationTick){ handleIncomingEvents(simulationTick); });
+    m_Game.setDevOptions(dev);
 }
 
 RType::Game::Server::Server(Server&& other)
@@ -152,6 +153,7 @@ void RType::Game::Server::handleIncomingEvents(Protecs::Tick simulationTick)
 RType::Game::Server::Builder::Builder() noexcept
     : m_Host("0.0.0.0")
     , m_Port(8080)
+    , m_Dev()
 {
 }
 
@@ -179,7 +181,13 @@ auto RType::Game::Server::Builder::setLogLevel(Utils::Logger::Level level) && ->
     return std::move(*this);
 }
 
+auto RType::Game::Server::Builder::setDevOptions(const DevOptions& dev) && -> Builder&&
+{
+    m_Dev = dev;
+    return std::move(*this);
+}
+
 auto RType::Game::Server::Builder::build() && -> Server
 {
-    return Server(m_Host, m_Port);
+    return Server(m_Host, m_Port, m_Dev);
 }
