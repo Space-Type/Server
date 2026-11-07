@@ -26,8 +26,18 @@ RType::Game::Game::Game() noexcept
     , m_IncomingEvents()
     , m_OutgoingEvents()
     , m_PullEvents()
+    , m_Requests()
+    , m_Level()
 {
+    auto seed = static_cast<std::uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count());
+
     m_Engine.get<Systems::BufferedInput>().setSimulationTick(m_SimulationTick);
+    m_Engine.get<Systems::Stage1>().setRequests(m_Requests);
+    m_Engine.get<Systems::Stage1>().seed(seed);
+    m_Engine.get<Systems::Shooting>().setRequests(m_Requests);
+    m_Engine.get<Systems::Shooting>().seed(seed ^ 0x9E3779B9U);
+    m_Engine.get<Systems::Flight>().setRequests(m_Requests);
+    m_Engine.get<Systems::Collisions>().setRequests(m_Requests);
 }
 
 /**
@@ -44,11 +54,10 @@ void RType::Game::Game::update(Wrecks::DeltaTime dt)
     while (m_FixedUpdateElapsedTime >= Protecs::FIXED_UPDATE_RATE) {
         handleEvents(m_SimulationTick);
         m_Engine.fixedUpdate(Protecs::FIXED_UPDATE_RATE);
+        applyRequests();
         m_SimulationTick++;
         m_FixedUpdateElapsedTime -= Protecs::FIXED_UPDATE_RATE;
     }
-
-    updateGameplay(dt);
 
     m_Engine.update(dt);
 
@@ -147,6 +156,8 @@ void RType::Game::Game::disconnectPlayer(const Protecs::Networking::Address& add
     m_Players.erase(playerIt);
 
     broadcastPacket(Packets::EntityDelete{ .id = networkId });
+    if (m_Players.empty())
+        endLevel();
 }
 
 /**
@@ -216,7 +227,9 @@ void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
     addSharedComponent(entity, Protecs::Components::PlayerInput{});
     addSharedComponent(entity, Protecs::Components::PlayerName::fromStr(m_Engine.get<Components::Player>()[entity].name));
     m_Engine.addComponent(entity, Components::InputBuffer{});
-    initPlayerGameplay(entity);
+    initPlayerBody(entity);
+    if (!m_Level)
+        startLevel();
 }
 
 /**
@@ -391,7 +404,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
 
     // send simulation tick sync to player
-    operator()(Packets::TickSync{ .clientTick = 0 });
+    operator()(Packets::TickSync{ .clientTick = 0, .clientTime = std::chrono::steady_clock::now() });
 
     m_Game.broadcastPacket(Packets::EntityCreate{ .simulationTick = m_Game.m_SimulationTick, .id = networkId, .type = Packets::EntityCreate::PLAYER });
     m_Game.makePlayer(playerEntity);

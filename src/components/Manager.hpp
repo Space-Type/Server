@@ -19,6 +19,7 @@ namespace RType::Components {
         Protecs::Components::Manager,
         Wrecks::ECS::ComponentManager<Body,
                                       InputBuffer,
+                                      LevelState,
                                       NetworkID,
                                       Player>
     >;
