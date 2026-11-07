@@ -16,10 +16,11 @@
 
 namespace RType::Systems {
     /**
-     * Player missiles destroy enemies (score to the shooter);
-     * enemies and their missiles cost a life to players, who
-     * come back at their start invulnerable for a moment, or
-     * are out with no life left. Runs after PlayerBounds.
+     * Player missiles and beams damage enemies (score to the
+     * shooter for a kill); enemies and their missiles cost a
+     * life to players, who come back at their start
+     * invulnerable for a moment, or are out with no life left.
+     * Runs after PlayerBounds.
      */
     class Collisions {
         public:
@@ -46,5 +47,9 @@ namespace RType::Systems {
             constexpr void setRequests(Game::Requests& requests) noexcept { m_Requests = &requests; }
 
             void operator()(Wrecks::ECS::Entity entity, Wrecks::DeltaTime dt);
+
+        private:
+            void hitWithShot(Wrecks::ECS::Entity shot);
+            void hitPlayer(Wrecks::ECS::Entity player);
     };
 }

@@ -49,5 +49,6 @@ void RType::Systems::Stage1::operator()(Wrecks::ECS::Entity entity, Wrecks::Delt
         .size = Rules::ENEMY_SIZE,
         .velocity = { -Rules::ENEMY_SPEED, 0.0F },
         .cooldown = m_Random.between(Rules::ENEMY_SHOT_MIN, Rules::ENEMY_SHOT_MAX),
+        .health = Rules::PATA_PATA_HEALTH,
     });
 }

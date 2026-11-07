@@ -16,10 +16,11 @@
 
 namespace RType::Systems {
     /**
-     * Counts down the shot cooldowns and invulnerability. A
-     * player shoots while its trigger is held (unless it is
-     * out), an enemy when its cooldown is over, at random
-     * intervals. Missiles leave from the front.
+     * Counts down the shot cooldowns and invulnerability.
+     * Players fire a missile when pressing the trigger and a
+     * charged beam when releasing it (unless they are out);
+     * enemies shoot at random intervals. Shots leave from the
+     * front.
      */
     class Shooting {
         public:
@@ -48,5 +49,9 @@ namespace RType::Systems {
             inline void seed(std::uint32_t seed) noexcept { m_Random.seed(seed); }
 
             void operator()(Wrecks::ECS::Entity entity, Wrecks::DeltaTime dt);
+
+        private:
+            void shootAsPlayer(Wrecks::ECS::Entity entity, Components::Body& body, float seconds);
+            void shootAsEnemy(Wrecks::ECS::Entity entity, Components::Body& body);
     };
 }

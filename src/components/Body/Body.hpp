@@ -10,6 +10,7 @@
 
 #include <protecs/common.hpp>
 #include <protecs/networking.hpp>
+#include <cstdint>
 
 
 namespace RType::Components {
@@ -26,5 +27,8 @@ namespace RType::Components {
         float cooldown = 0.0F;                       // seconds before the next shot
         float invulnerable = 0.0F;                   // seconds left after a player respawns
         bool out = false;                            // a player with no life left: no more shots nor hits
+        float charge = 0.0F;                         // seconds the trigger has been held (charged shot)
+        bool triggered = false;                      // trigger held at the previous step
+        std::uint8_t damage = 0;                     // missiles and beams: hit points taken from an enemy
     };
 }
