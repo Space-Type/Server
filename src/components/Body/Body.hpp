@@ -25,5 +25,6 @@ namespace RType::Components {
         Wrecks::ECS::Entity owner = 0;               // player who shot a missile (score)
         float cooldown = 0.0F;                       // seconds before the next shot
         float invulnerable = 0.0F;                   // seconds left after a player respawns
+        bool out = false;                            // a player with no life left: no more shots nor hits
     };
 }
