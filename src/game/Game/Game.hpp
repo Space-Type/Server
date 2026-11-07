@@ -44,7 +44,7 @@ namespace RType::Game {
 
             std::function<void(Protecs::Tick)> m_PullEvents;
 
-            // Level (Level.cpp)
+            // Level and requests of the systems: used by the functions of Level.cpp
             Requests m_Requests;                    // asked by the systems, applied after each fixed update
             std::optional<Wrecks::ECS::Entity> m_Level;  // exists while at least one player is connected
 
@@ -68,7 +68,7 @@ namespace RType::Game {
 
             void makePlayer(Wrecks::ECS::Entity entity);
 
-            // Level (Level.cpp)
+            // Level and requests of the systems: implemented in Level.cpp
             void applyRequests();
             void spawnBody(const SpawnRequest& request);
             void initPlayerBody(Wrecks::ECS::Entity player);
