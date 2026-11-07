@@ -405,6 +405,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::TickSync& data)
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::TickSync{
         .clientTick = data.clientTick,
         .serverTick = m_Game.m_SimulationTick,
+        .clientTime = data.clientTime,
         .serverTime = std::chrono::steady_clock::now(),
     });
 }
