@@ -20,6 +20,7 @@ RType::Game::Game::Game() noexcept
     : m_Engine()
     , m_FixedUpdateElapsedTime(0)
     , m_NetworkUpdateElapsedTime(0)
+    , m_NetworkUpdates(0)
     , m_SimulationTick(0)
     , m_Players()
     , m_IncomingEvents()
@@ -171,6 +172,7 @@ void RType::Game::Game::handleEvents(Protecs::Tick tick)
  */
 void RType::Game::Game::updateNetwork()
 {
+    m_NetworkUpdates++;
     constexpr std::size_t protecsComponentCount = Wrecks::Utils::container_elements_v<Protecs::Components::Manager>;
 
     for (std::size_t componentIndex = 0; componentIndex < protecsComponentCount; componentIndex++) {
@@ -193,7 +195,10 @@ void RType::Game::Game::updateNetwork()
         }, componentIndex);
     }
 
-    broadcastPacket(Packets::PlayerInput{});
+    if (m_NetworkUpdates >= UPDATES_PER_INPUT_SYNC) {
+        broadcastPacket(Packets::PlayerInput{});
+        m_NetworkUpdates = 0;
+    }
 }
 
 /**

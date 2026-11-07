@@ -19,6 +19,7 @@
 namespace RType::Game {
     class Game {
         static constexpr Wrecks::DeltaTime NETWORK_UPDATE_RATE = std::chrono::duration<double>(1.0 / 20.0);
+        static constexpr unsigned int      UPDATES_PER_INPUT_SYNC = 10;
 
         using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
 
@@ -31,6 +32,7 @@ namespace RType::Game {
 
             Wrecks::DeltaTime m_FixedUpdateElapsedTime;
             Wrecks::DeltaTime m_NetworkUpdateElapsedTime;
+            unsigned int m_NetworkUpdates;
 
             std::unordered_map<Protecs::Networking::Address, Wrecks::ECS::Entity> m_Players;
             std::deque<InternalEvent> m_IncomingEvents;
