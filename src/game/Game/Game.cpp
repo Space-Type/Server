@@ -41,6 +41,7 @@ RType::Game::Game::Game() noexcept
     m_Engine.get<Systems::Shooting>().seed(seed ^ 0x9E3779B9U);
     m_Engine.get<Systems::Flight>().setRequests(m_Requests);
     m_Engine.get<Systems::Collisions>().setRequests(m_Requests);
+    m_Engine.get<Systems::Dobkeratops>().setRequests(m_Requests);
 }
 
 /**

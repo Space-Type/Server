@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../../../src/components/Body/Body.hpp"
+#include "../../../src/components/Boss/Boss.hpp"
 #include "../../../src/components/InputBuffer/InputBuffer.hpp"
 #include "../../../src/components/LevelState/LevelState.hpp"
 #include "../../../src/components/NetworkID/NetworkID.hpp"

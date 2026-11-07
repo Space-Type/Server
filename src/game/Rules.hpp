@@ -58,7 +58,32 @@ namespace RType::Rules {
     inline constexpr float SINE_AMPLITUDE = 40.0F;         // world units above and below the starting height
     inline constexpr float SINE_PERIOD = 2.0F;             // seconds
 
+    // Stage 1 boss (Dobkeratops, without its tail). Positions in pixels of its sprite (r-typesheet30, 155 x 204)
+    inline constexpr float BOSS_SCALE = 1.6F;                        // ~70 % of the screen height
+    inline constexpr Vec2D BOSS_SPRITE = { 155.0F, 204.0F };
+    inline constexpr Vec2D BOSS_BODY_OFFSET = { 95.0F, 40.0F };      // solid part: hurts on contact, absorbs shots
+    inline constexpr Vec2D BOSS_BODY_SIZE = { 60.0F, 160.0F };
+    inline constexpr Vec2D BOSS_CORE_OFFSET = { 72.0F, 95.0F };      // the creature in its chest: the weak point
+    inline constexpr Vec2D BOSS_CORE_SIZE = { 28.0F, 30.0F };
+    inline constexpr Vec2D BOSS_MOUTH = { 5.0F, 55.0F };             // where its shots leave
+    inline constexpr float BOSS_SPEED = 40.0F;                       // entering from the right
+    inline constexpr float BOSS_MARGIN = 10.0F;                      // from the right edge once in place
+    inline constexpr std::uint16_t BOSS_HEALTH = 60;
+    inline constexpr std::uint32_t BOSS_SCORE = 5000;
+    inline constexpr std::uint8_t BOSS_BURST = 3;                    // aimed shots per burst
+    inline constexpr float BOSS_SHOT_INTERVAL = 0.25F;               // seconds between the shots of a burst
+    inline constexpr float BOSS_BURST_INTERVAL = 2.0F;               // seconds between two bursts
+    inline constexpr float BOSS_SHOT_SPEED = 120.0F;
+
+    // Every enemy part: they hurt players on contact
     constexpr bool isEnemy(EntityType type) noexcept
+    {
+        return type == EntityCreate::ENEMY_PATA_PATA || type == EntityCreate::ENEMY_SCANT
+            || type == EntityCreate::ENEMY_DOBKERATOPS || type == EntityCreate::ENEMY_DOBKERATOPS_CORE;
+    }
+
+    // Small enemies, which shoot at random intervals (the boss has its own system)
+    constexpr bool shootsRandomly(EntityType type) noexcept
     {
         return type == EntityCreate::ENEMY_PATA_PATA || type == EntityCreate::ENEMY_SCANT;
     }

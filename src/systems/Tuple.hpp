@@ -19,6 +19,7 @@ namespace RType::Systems {
         Protecs::Systems::Tuple,
         std::tuple<BufferedInput,
                    Stage1,
+                   Dobkeratops,
                    Shooting,
                    Flight,
                    Collisions>

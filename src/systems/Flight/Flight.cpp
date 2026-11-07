@@ -33,8 +33,16 @@ void RType::Systems::Flight::operator()(Wrecks::ECS::Entity entity, Wrecks::Delt
 
     body.age += seconds;
     position += body.velocity * seconds;
+    if (body.stopX > 0.0F && position.x <= body.stopX) {
+        position.x = body.stopX;
+        body.velocity = {};
+    }
     if (body.pattern == Components::Pattern::Sine)
         position.y = body.baseY + Rules::SINE_AMPLITUDE * std::sin(2.0F * std::numbers::pi_v<float> * body.age / Rules::SINE_PERIOD);
-    if (position.x < -Rules::OFFSCREEN_MARGIN || position.x > Protecs::MAP_MAX_X + Rules::OFFSCREEN_MARGIN)
+    // Only on the side it flies to: a boss part enters from beyond the right edge
+    bool goneLeft = body.velocity.x < 0.0F && position.x < -Rules::OFFSCREEN_MARGIN;
+    bool goneRight = body.velocity.x > 0.0F && position.x > Protecs::MAP_MAX_X + Rules::OFFSCREEN_MARGIN;
+
+    if (goneLeft || goneRight)
         m_Requests->destroy(entity);
 }

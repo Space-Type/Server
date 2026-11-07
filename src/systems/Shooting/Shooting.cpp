@@ -33,7 +33,7 @@ void RType::Systems::Shooting::operator()(Wrecks::ECS::Entity entity, Wrecks::De
 
     if (body.type == EntityCreate::PLAYER)
         shootAsPlayer(entity, body, seconds);
-    else if (Rules::isEnemy(body.type) && body.cooldown <= 0.0F)
+    else if (Rules::shootsRandomly(body.type) && body.cooldown <= 0.0F)
         shootAsEnemy(entity, body);
 }
 

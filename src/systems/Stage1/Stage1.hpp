@@ -21,8 +21,8 @@ namespace RType::Systems {
      * First stage: scrolls the level (Level::progression, in
      * pixels of stage-1.png) and makes the enemies of
      * stage-1.waves appear on the right as the level reaches
-     * them. At the end of the stage, the level goes on to
-     * stage 2.
+     * them. At the end of the stage, the level stops scrolling
+     * and the boss comes (the Dobkeratops system takes over).
      */
     class Stage1 {
         public:
@@ -55,5 +55,8 @@ namespace RType::Systems {
             constexpr void setSpeed(float speed) noexcept { m_Speed = speed; }
 
             void operator()(Wrecks::ECS::Entity entity, Wrecks::DeltaTime dt);
+
+        private:
+            void spawnBoss();
     };
 }

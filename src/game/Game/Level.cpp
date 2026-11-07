@@ -44,12 +44,14 @@ void RType::Game::Game::spawnBody(const SpawnRequest& request)
 
     m_Engine.addComponent(entity, Components::NetworkID{ networkId });
     m_Engine.addComponent(entity, Components::Body{
-        .type = request.type, .size = request.size, .velocity = request.velocity,
+        .type = request.type, .size = request.size, .offset = request.offset, .velocity = request.velocity,
         .owner = request.owner, .cooldown = request.cooldown, .damage = request.damage,
-        .pattern = request.pattern, .baseY = request.position.y,
+        .pattern = request.pattern, .baseY = request.position.y, .stopX = request.stopX,
     });
+    if (request.boss)
+        m_Engine.addComponent(entity, Components::Boss{});
     broadcastPacket(Packets::EntityCreate{ .simulationTick = m_SimulationTick, .id = networkId.id, .type = request.type });
-    addSharedComponent(entity, Protecs::Components::Transform{ .position = request.position, .rotation = 0.0F, .scale = 1.0F });
+    addSharedComponent(entity, Protecs::Components::Transform{ .position = request.position, .rotation = 0.0F, .scale = request.scale });
     if (request.health > 0)
         addSharedComponent(entity, Protecs::Components::Health{ .hp = request.health, .max = request.health });
 }

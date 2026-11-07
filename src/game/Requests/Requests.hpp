@@ -28,6 +28,10 @@ namespace RType::Game {
         std::uint8_t damage = 0;        // missiles and beams
         std::uint16_t health = 0;       // enemies: hit points (0: no Health component)
         Components::Pattern pattern = Components::Pattern::Straight;
+        Protecs::Utils::Vec2D<float> offset = {};  // hitbox position from the entity position
+        float stopX = 0.0F;
+        float scale = 1.0F;             // Transform.scale: clients draw the sprite that much bigger
+        bool boss = false;              // gets a Boss component
     };
 
     /**

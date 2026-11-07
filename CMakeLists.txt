@@ -30,6 +30,7 @@ endif()
 
 set(SOURCES
     src/components/Body/Body.hpp
+    src/components/Boss/Boss.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/LevelState/LevelState.hpp
     src/components/InputBuffer/InputBuffer.hpp
@@ -54,6 +55,8 @@ set(SOURCES
     src/systems/BufferedInput/BufferedInput.cpp
     src/systems/Collisions/Collisions.cpp
     src/systems/Collisions/Collisions.hpp
+    src/systems/Dobkeratops/Dobkeratops.cpp
+    src/systems/Dobkeratops/Dobkeratops.hpp
     src/systems/Flight/Flight.cpp
     src/systems/Flight/Flight.hpp
     src/systems/Shooting/Shooting.cpp

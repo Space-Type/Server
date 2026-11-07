@@ -18,6 +18,7 @@ namespace RType::Components {
     using Manager = Wrecks::Utils::concat_types_t<
         Protecs::Components::Manager,
         Wrecks::ECS::ComponentManager<Body,
+                                      Boss,
                                       InputBuffer,
                                       LevelState,
                                       NetworkID,

@@ -59,15 +59,22 @@ void RType::Systems::Collisions::hitWithShot(Wrecks::ECS::Entity shot)
         const auto& otherPosition = engine.get<Protecs::Components::Transform>()[other].position;
         bool target = Rules::isEnemy(otherBody.type) || (beam && otherBody.type == Rules::EntityCreate::ENEMY_MISSILE);
 
-        if (target && !m_Requests->destroying(other) && Rules::overlap(position, body.size, otherPosition, otherBody.size))
+        if (target && !m_Requests->destroying(other)
+            && Rules::overlap(position + body.offset, body.size, otherPosition + otherBody.offset, otherBody.size))
             touched.emplace_back(otherPosition.x, other);
     }
     std::ranges::sort(touched);
 
     for (auto [x, other] : touched) {
-        if (engine.get<Components::Body>()[other].type == Rules::EntityCreate::ENEMY_MISSILE) {
+        auto otherType = engine.get<Components::Body>()[other].type;
+
+        if (otherType == Rules::EntityCreate::ENEMY_MISSILE) {
             m_Requests->destroy(other);
             continue;
+        }
+        if (otherType == Rules::EntityCreate::ENEMY_DOBKERATOPS) {  // the boss body absorbs shots, only its core takes damage
+            m_Requests->destroy(shot);
+            return;
         }
 
         bool hasHealth = engine.hasComponent<Protecs::Components::Health>(other);
@@ -81,7 +88,8 @@ void RType::Systems::Collisions::hitWithShot(Wrecks::ECS::Entity shot)
         }
         m_Requests->destroy(other);
         if (engine.hasComponent<Protecs::Components::PlayerStats>(body.owner))
-            engine.get<Protecs::Components::PlayerStats>()[body.owner].score += Rules::ENEMY_SCORE;
+            engine.get<Protecs::Components::PlayerStats>()[body.owner].score
+                += otherType == Rules::EntityCreate::ENEMY_DOBKERATOPS_CORE ? Rules::BOSS_SCORE : Rules::ENEMY_SCORE;
         if (!beam) {
             m_Requests->destroy(shot);
             return;
@@ -110,7 +118,8 @@ void RType::Systems::Collisions::hitPlayer(Wrecks::ECS::Entity player)
         bool hurts = Rules::isEnemy(otherBody.type) || otherBody.type == Rules::EntityCreate::ENEMY_MISSILE;
 
         if (!hurts || m_Requests->destroying(other)
-            || !Rules::overlap(transform.position, body.size, engine.get<Protecs::Components::Transform>()[other].position, otherBody.size))
+            || !Rules::overlap(transform.position + body.offset, body.size,
+                               engine.get<Protecs::Components::Transform>()[other].position + otherBody.offset, otherBody.size))
             continue;
 
         auto& stats = engine.get<Protecs::Components::PlayerStats>()[player];

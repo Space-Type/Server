@@ -16,5 +16,7 @@ namespace RType::Components {
     struct LevelState {
         float distance = 0.0F;     // background pixels scrolled in the current stage (Level::progression, as a float)
         std::size_t nextWave = 0;  // first wave of the stage file not spawned yet
+        bool bossSpawned = false;  // the end of the stage is reached: the level stops scrolling
+        bool cleared = false;      // the boss is dead
     };
 }
