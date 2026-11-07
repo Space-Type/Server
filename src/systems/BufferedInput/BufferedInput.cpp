@@ -26,15 +26,16 @@ void RType::Systems::BufferedInput::operator()(Wrecks::ECS::Entity entity, Wreck
     auto& buffer = engine.get<Components::InputBuffer>()[entity];
     auto& input  = engine.get<Protecs::Components::PlayerInput>()[entity];
 
-    const auto& bufferedInput = buffer.get(*m_SimulationTick);
-    if (!bufferedInput)
+    if (!buffer.queuedInput)
         return;
 
-    switch (bufferedInput->input) {
-        case PlayerInput::UP:      input.up      = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
-        case PlayerInput::DOWN:    input.down    = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
-        case PlayerInput::LEFT:    input.left    = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
-        case PlayerInput::RIGHT:   input.right   = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
-        case PlayerInput::TRIGGER: input.trigger = bufferedInput->state == PlayerInput::HOLD_DOWN; break;
+    switch (buffer.queuedInput->input) {
+        case PlayerInput::UP:      input.up      = buffer.queuedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::DOWN:    input.down    = buffer.queuedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::LEFT:    input.left    = buffer.queuedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::RIGHT:   input.right   = buffer.queuedInput->state == PlayerInput::HOLD_DOWN; break;
+        case PlayerInput::TRIGGER: input.trigger = buffer.queuedInput->state == PlayerInput::HOLD_DOWN; break;
     }
+
+    buffer.queuedInput = {};
 }

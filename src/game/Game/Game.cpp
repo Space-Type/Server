@@ -362,7 +362,8 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& dat
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto& inputs = m_Game.m_Engine.get<Components::InputBuffer>()[playerEntity];
-    inputs.set(m_Game.m_SimulationTick, data);
+
+    inputs.queuedInput = data;
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
