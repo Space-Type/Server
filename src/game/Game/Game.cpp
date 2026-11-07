@@ -28,12 +28,14 @@ RType::Game::Game::Game() noexcept
     , m_PullEvents()
     , m_Requests()
     , m_Level()
+    , m_Stage1Waves(loadWaves("stage-1.waves"))
 {
     auto seed = static_cast<std::uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count());
 
     m_Engine.get<Systems::BufferedInput>().setSimulationTick(m_SimulationTick);
     m_Engine.get<Systems::Stage1>().setRequests(m_Requests);
     m_Engine.get<Systems::Stage1>().seed(seed);
+    m_Engine.get<Systems::Stage1>().setWaves(m_Stage1Waves);
     m_Engine.get<Systems::Shooting>().setRequests(m_Requests);
     m_Engine.get<Systems::Shooting>().seed(seed ^ 0x9E3779B9U);
     m_Engine.get<Systems::Flight>().setRequests(m_Requests);

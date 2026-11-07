@@ -8,11 +8,13 @@
 
 #pragma once
 
+#include <cstddef>
+
 
 namespace RType::Components {
     // Server-only state of the level entity, next to its shared Protecs::Components::Level
     struct LevelState {
         float distance = 0.0F;     // background pixels scrolled in the current stage (Level::progression, as a float)
-        float spawnTimer = 1.0F;   // seconds before the next enemy
+        std::size_t nextWave = 0;  // first wave of the stage file not spawned yet
     };
 }

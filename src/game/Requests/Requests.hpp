@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "../../components/Body/Body.hpp"
 #include <protecs/common.hpp>
 #include <protecs/networking.hpp>
 #include <wrecks/ecs.hpp>
@@ -26,6 +27,7 @@ namespace RType::Game {
         float cooldown = 0.0F;          // seconds before its first shot
         std::uint8_t damage = 0;        // missiles and beams
         std::uint16_t health = 0;       // enemies: hit points (0: no Health component)
+        Components::Pattern pattern = Components::Pattern::Straight;
     };
 
     /**

@@ -29,8 +29,6 @@ namespace RType::Rules {
     inline constexpr float PLAYER_MISSILE_SPEED = 300.0F;  // world units per second
     inline constexpr float ENEMY_SPEED = 60.0F;
     inline constexpr float ENEMY_MISSILE_SPEED = 150.0F;
-    inline constexpr float ENEMY_SPAWN_MIN = 1.0F;         // seconds between two enemies
-    inline constexpr float ENEMY_SPAWN_MAX = 2.0F;
     inline constexpr float ENEMY_SHOT_MIN = 1.5F;          // seconds between two shots of an enemy
     inline constexpr float ENEMY_SHOT_MAX = 3.5F;
 
@@ -50,9 +48,15 @@ namespace RType::Rules {
     inline constexpr float RESPAWN_INVULNERABILITY = 2.0F;  // the client blinks the ship as long (Game-Client: BLINK_DURATION)
     inline constexpr float OFFSCREEN_MARGIN = 64.0F;        // beyond it, an enemy or a missile is gone
 
-    // Levels: the progression is in pixels of the stage background (Game-Client: assets/stages)
+    // Levels: the progression is in pixels of the stage background (Game-Client: assets/stages, 240 px high)
     inline constexpr float SCROLL_SPEED = 30.0F;           // background pixels per second
-    inline constexpr std::uint32_t STAGE1_LENGTH = 4224;   // width of stage-1.png
+    inline constexpr float VISIBLE_BACKGROUND = 240.0F * Protecs::MAP_MAX_X / Protecs::MAP_MAX_Y;  // ~427 px on screen
+    // The stage ends when the end of stage-1.png (4224 px wide) reaches the right edge of the screen
+    inline constexpr std::uint32_t STAGE1_LENGTH = 4224 - static_cast<std::uint32_t>(VISIBLE_BACKGROUND);
+
+    // Pattern::Sine
+    inline constexpr float SINE_AMPLITUDE = 40.0F;         // world units above and below the starting height
+    inline constexpr float SINE_PERIOD = 2.0F;             // seconds
 
     constexpr bool isEnemy(EntityType type) noexcept
     {

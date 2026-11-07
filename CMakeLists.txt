@@ -44,6 +44,8 @@ set(SOURCES
     src/game/Requests/Requests.cpp
     src/game/Requests/Requests.hpp
     src/game/Rules.hpp
+    src/game/Waves/Waves.cpp
+    src/game/Waves/Waves.hpp
     src/game/Server/Server.cpp
     src/game/Server/Server.hpp
     src/game/Engine.hpp

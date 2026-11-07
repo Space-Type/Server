@@ -39,16 +39,18 @@ void RType::Systems::Stage1::operator()(Wrecks::ECS::Entity entity, Wrecks::Delt
         return;
     }
 
-    state.spawnTimer -= seconds;
-    if (state.spawnTimer > 0.0F)
-        return;
-    state.spawnTimer = m_Random.between(Rules::ENEMY_SPAWN_MIN, Rules::ENEMY_SPAWN_MAX);
-    m_Requests->spawns.push_back({
-        .type = Rules::EntityCreate::ENEMY_PATA_PATA,
-        .position = { Protecs::MAP_MAX_X, m_Random.between(0.0F, Protecs::MAP_MAX_Y - Rules::ENEMY_SIZE.y) },
-        .size = Rules::ENEMY_SIZE,
-        .velocity = { -Rules::ENEMY_SPEED, 0.0F },
-        .cooldown = m_Random.between(Rules::ENEMY_SHOT_MIN, Rules::ENEMY_SHOT_MAX),
-        .health = Rules::PATA_PATA_HEALTH,
-    });
+    // Every wave the level reached appears on the right (stage-1.waves)
+    for (; m_Waves && state.nextWave < m_Waves->size() && (*m_Waves)[state.nextWave].progression <= level.progression; ++state.nextWave) {
+        const Game::Wave& wave = (*m_Waves)[state.nextWave];
+
+        m_Requests->spawns.push_back({
+            .type = wave.type,
+            .position = { Protecs::MAP_MAX_X, wave.y },
+            .size = Rules::ENEMY_SIZE,
+            .velocity = { -Rules::ENEMY_SPEED, 0.0F },
+            .cooldown = m_Random.between(Rules::ENEMY_SHOT_MIN, Rules::ENEMY_SHOT_MAX),
+            .health = Rules::PATA_PATA_HEALTH,
+            .pattern = wave.pattern,
+        });
+    }
 }

@@ -14,6 +14,12 @@
 
 
 namespace RType::Components {
+    // How an enemy flies (stage files: "straight", "sine")
+    enum class Pattern : std::uint8_t {
+        Straight,
+        Sine,      // a wave around its starting height, like the Pata-Pata
+    };
+
     /**
      * Server-only gameplay data of a player, an enemy
      * or a missile. Positions stay in Transform (shared),
@@ -30,5 +36,8 @@ namespace RType::Components {
         float charge = 0.0F;                         // seconds the trigger has been held (charged shot)
         bool triggered = false;                      // trigger held at the previous step
         std::uint8_t damage = 0;                     // missiles and beams: hit points taken from an enemy
+        Pattern pattern = Pattern::Straight;
+        float baseY = 0.0F;                          // height the wave goes around (Pattern::Sine)
+        float age = 0.0F;                            // seconds since it appeared
     };
 }

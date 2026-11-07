@@ -16,6 +16,7 @@
 #include <chrono>
 #include <deque>
 #include "../Requests/Requests.hpp"
+#include "../Waves/Waves.hpp"
 #include <optional>
 #include <vector>
 
@@ -47,6 +48,7 @@ namespace RType::Game {
             // Level (Level.cpp)
             Requests m_Requests;                    // asked by the systems, applied after each fixed update
             std::optional<Wrecks::ECS::Entity> m_Level;  // exists while at least one player is connected
+            std::vector<Wave> m_Stage1Waves;              // assets/stages/stage-1.waves
 
         public:
             Game() noexcept;

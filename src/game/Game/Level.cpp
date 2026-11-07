@@ -46,6 +46,7 @@ void RType::Game::Game::spawnBody(const SpawnRequest& request)
     m_Engine.addComponent(entity, Components::Body{
         .type = request.type, .size = request.size, .velocity = request.velocity,
         .owner = request.owner, .cooldown = request.cooldown, .damage = request.damage,
+        .pattern = request.pattern, .baseY = request.position.y,
     });
     broadcastPacket(Packets::EntityCreate{ .simulationTick = m_SimulationTick, .id = networkId.id, .type = request.type });
     addSharedComponent(entity, Protecs::Components::Transform{ .position = request.position, .rotation = 0.0F, .scale = 1.0F });
