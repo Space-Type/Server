@@ -10,5 +10,6 @@
 
 #include "../../../src/components/Body/Body.hpp"
 #include "../../../src/components/InputBuffer/InputBuffer.hpp"
+#include "../../../src/components/LevelState/LevelState.hpp"
 #include "../../../src/components/NetworkID/NetworkID.hpp"
 #include "../../../src/components/Player/Player.hpp"

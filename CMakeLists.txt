@@ -31,6 +31,7 @@ endif()
 set(SOURCES
     src/components/Body/Body.hpp
     src/components/InputBuffer/InputBuffer.cpp
+    src/components/LevelState/LevelState.hpp
     src/components/InputBuffer/InputBuffer.hpp
     src/components/NetworkID/NetworkID.cpp
     src/components/NetworkID/NetworkID.hpp
@@ -53,6 +54,8 @@ set(SOURCES
     src/systems/Flight/Flight.hpp
     src/systems/Shooting/Shooting.cpp
     src/systems/Shooting/Shooting.hpp
+    src/systems/Stage1/Stage1.cpp
+    src/systems/Stage1/Stage1.hpp
     src/systems/BufferedInput/BufferedInput.hpp
     src/systems/Tuple.hpp
     src/utils/Logger/Logger.cpp

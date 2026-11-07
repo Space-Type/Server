@@ -27,10 +27,13 @@ RType::Game::Game::Game() noexcept
     , m_OutgoingEvents()
     , m_PullEvents()
     , m_Requests()
+    , m_Level()
 {
     auto seed = static_cast<std::uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count());
 
     m_Engine.get<Systems::BufferedInput>().setSimulationTick(m_SimulationTick);
+    m_Engine.get<Systems::Stage1>().setRequests(m_Requests);
+    m_Engine.get<Systems::Stage1>().seed(seed);
     m_Engine.get<Systems::Shooting>().setRequests(m_Requests);
     m_Engine.get<Systems::Shooting>().seed(seed ^ 0x9E3779B9U);
     m_Engine.get<Systems::Flight>().setRequests(m_Requests);
@@ -153,6 +156,8 @@ void RType::Game::Game::disconnectPlayer(const Protecs::Networking::Address& add
     m_Players.erase(playerIt);
 
     broadcastPacket(Packets::EntityDelete{ .id = networkId });
+    if (m_Players.empty())
+        endLevel();
 }
 
 /**
@@ -223,6 +228,8 @@ void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
     addSharedComponent(entity, Protecs::Components::PlayerName::fromStr(m_Engine.get<Components::Player>()[entity].name));
     m_Engine.addComponent(entity, Components::InputBuffer{});
     initPlayerBody(entity);
+    if (!m_Level)
+        startLevel();
 }
 
 /**

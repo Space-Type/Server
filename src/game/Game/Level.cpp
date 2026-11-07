@@ -69,3 +69,43 @@ void RType::Game::Game::initPlayerBody(Wrecks::ECS::Entity player)
     m_Engine.get<Protecs::Components::Transform>()[player].position = Rules::respawnPosition(slot);
     addSharedComponent(player, Protecs::Components::PlayerStats{ .slot = slot, .lives = Rules::PLAYER_LIVES, .score = 0 });
 }
+
+/**
+ * The level starts with the first player: its entity holds
+ * the stage and its progression (shared with the clients),
+ * and the stage systems (Stage1, ...) run on it.
+ */
+void RType::Game::Game::startLevel()
+{
+    auto level = m_Engine.createEntity();
+    auto networkId = Components::NetworkID::fromEntity(level);
+
+    m_Level = level;
+    m_Engine.addComponent(level, Components::NetworkID{ networkId });
+    m_Engine.addComponent(level, Components::LevelState{});
+    broadcastPacket(Packets::EntityCreate{ .simulationTick = m_SimulationTick, .id = networkId.id, .type = Packets::EntityCreate::GENERIC });
+    addSharedComponent(level, Protecs::Components::Level{ .progression = 0, .stage = 1 });
+    logger.info() << "level started" << std::endl;
+}
+
+/**
+ * With no player left, the level and everything still flying
+ * are deleted: the next player starts the level over.
+ */
+void RType::Game::Game::endLevel()
+{
+    std::vector<Wrecks::ECS::Entity> leftovers;
+
+    for (auto [entity, body] : m_Engine.get<Components::Body>())
+        leftovers.push_back(entity);
+    if (m_Level)
+        leftovers.push_back(*m_Level);
+    for (auto entity : leftovers) {
+        broadcastPacket(Packets::EntityDelete{ .id = m_Engine.get<Components::NetworkID>()[entity].id });
+        m_Engine.deleteEntity(entity);
+    }
+    m_Requests.spawns.clear();
+    m_Requests.destroys.clear();
+    m_Level.reset();
+    logger.info() << "level ended (no player left)" << std::endl;
+}
