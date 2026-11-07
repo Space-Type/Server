@@ -20,6 +20,7 @@ RType::Game::Game::Game() noexcept
     : m_Engine()
     , m_FixedUpdateElapsedTime(0)
     , m_NetworkUpdateElapsedTime(0)
+    , m_NetworkUpdates(0)
     , m_SimulationTick(0)
     , m_Players()
     , m_IncomingEvents()
@@ -173,6 +174,7 @@ void RType::Game::Game::handleEvents(Protecs::Tick tick)
  */
 void RType::Game::Game::updateNetwork()
 {
+    m_NetworkUpdates++;
     constexpr std::size_t protecsComponentCount = Wrecks::Utils::container_elements_v<Protecs::Components::Manager>;
 
     for (std::size_t componentIndex = 0; componentIndex < protecsComponentCount; componentIndex++) {
@@ -193,6 +195,11 @@ void RType::Game::Game::updateNetwork()
                 });
             }
         }, componentIndex);
+    }
+
+    if (m_NetworkUpdates >= UPDATES_PER_INPUT_SYNC) {
+        broadcastPacket(Packets::PlayerInput{});
+        m_NetworkUpdates = 0;
     }
 }
 
@@ -366,7 +373,8 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& dat
 
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto& inputs = m_Game.m_Engine.get<Components::InputBuffer>()[playerEntity];
-    inputs.set(m_Game.m_SimulationTick, data);
+
+    inputs.push(data);
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
@@ -401,6 +409,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::TickSync& data)
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::TickSync{
         .clientTick = data.clientTick,
         .serverTick = m_Game.m_SimulationTick,
+        .clientTime = data.clientTime,
         .serverTime = std::chrono::steady_clock::now(),
     });
 }
