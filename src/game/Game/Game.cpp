@@ -212,6 +212,7 @@ void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
     addSharedComponent(entity, Protecs::Components::Velocity{});
     addSharedComponent(entity, Protecs::Components::Movement{ {}, 1.f });
     addSharedComponent(entity, Protecs::Components::PlayerInput{});
+    addSharedComponent(entity, Protecs::Components::PlayerName::fromStr(m_Engine.get<Components::Player>()[entity].name));
     m_Engine.addComponent(entity, Components::InputBuffer{});
 }
 
