@@ -37,7 +37,7 @@ namespace {
 
     constexpr std::uint8_t PLAYER_LIVES = 3;
     constexpr std::uint32_t ENEMY_SCORE = 100;
-    constexpr float RESPAWN_INVULNERABILITY = 2.0F;
+    constexpr float RESPAWN_INVULNERABILITY = 2.0F;  // the client blinks the ship as long (Game-Client: BLINK_DURATION)
     constexpr float OFFSCREEN_MARGIN = 64.0F;  // beyond it, an enemy or a missile is gone
 
     bool isEnemy(EntityType type) noexcept
@@ -151,7 +151,7 @@ void RType::Game::Game::shoot(float seconds)
         if (body.cooldown > 0.0F)
             continue;
 
-        if (body.type == Packets::EntityCreate::PLAYER && m_Engine.get<Protecs::Components::PlayerInput>()[entity].trigger) {
+        if (body.type == Packets::EntityCreate::PLAYER && !body.out && m_Engine.get<Protecs::Components::PlayerInput>()[entity].trigger) {
             body.cooldown = PLAYER_SHOT_COOLDOWN;
             shots.push_back({ Packets::EntityCreate::PLAYER_MISSILE,
                               { position.x + body.size.x, position.y + (body.size.y - PLAYER_MISSILE_SIZE.y) / 2.0F },
@@ -222,7 +222,7 @@ void RType::Game::Game::collide()
                 destroyLater(first);
                 destroyLater(second);
             } else if (a.type == Packets::EntityCreate::PLAYER && (isEnemy(b.type) || b.type == Packets::EntityCreate::ENEMY_MISSILE)) {
-                if (a.invulnerable > 0.0F)
+                if (a.invulnerable > 0.0F || a.out)
                     continue;
                 destroyLater(second);
                 hitPlayer(first);
@@ -233,8 +233,9 @@ void RType::Game::Game::collide()
 
 /**
  * A hit player loses a life and comes back at its
- * start, invulnerable for a moment. With no life
- * left, it starts over (game over is up to clients).
+ * start, invulnerable for a moment (clients blink it).
+ * With no life left, it is out: it no longer shoots
+ * nor gets hit, and its client ends the game.
  */
 void RType::Game::Game::hitPlayer(Wrecks::ECS::Entity player)
 {
@@ -242,16 +243,16 @@ void RType::Game::Game::hitPlayer(Wrecks::ECS::Entity player)
     auto& body = m_Engine.get<Components::Body>()[player];
 
     stats.lives = stats.lives > 0 ? stats.lives - 1 : 0;
+    sendSharedComponent<Protecs::Components::PlayerStats>(player);
     if (stats.lives == 0) {
-        logger.info() << "player \"" << m_Engine.get<Components::Player>()[player].name << "\" lost all lives ("
+        logger.info() << "player \"" << m_Engine.get<Components::Player>()[player].name << "\" is out ("
                       << stats.score << " points)" << std::endl;
-        stats.lives = PLAYER_LIVES;
-        stats.score = 0;
+        body.out = true;
+        return;
     }
     body.invulnerable = RESPAWN_INVULNERABILITY;
     m_Engine.get<Protecs::Components::Transform>()[player].position = respawnPosition(stats.slot);
     m_Engine.get<Protecs::Components::Velocity>()[player] = {};
-    sendSharedComponent<Protecs::Components::PlayerStats>(player);
     sendSharedComponent<Protecs::Components::Transform>(player);
 }
 
