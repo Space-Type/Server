@@ -192,6 +192,8 @@ void RType::Game::Game::updateNetwork()
             }
         }, componentIndex);
     }
+
+    broadcastPacket(Packets::PlayerInput{});
 }
 
 /**
@@ -363,7 +365,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerInput& dat
     auto playerEntity = m_Game.m_Players.at(m_Player.address);
     auto& inputs = m_Game.m_Engine.get<Components::InputBuffer>()[playerEntity];
 
-    inputs.queuedInput = data;
+    inputs.push(data);
 }
 
 void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data)
