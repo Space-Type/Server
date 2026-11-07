@@ -10,6 +10,7 @@
 
 #include <protecs/common.hpp>
 #include <protecs/networking.hpp>
+#include <array>
 #include <cstdint>
 
 
@@ -33,6 +34,17 @@ namespace RType::Rules {
     inline constexpr float ENEMY_SHOT_MIN = 1.5F;          // seconds between two shots of an enemy
     inline constexpr float ENEMY_SHOT_MAX = 3.5F;
 
+    // Charged shot (R-Type's Wave Cannon): hold the trigger, release to fire
+    inline constexpr float CHARGE_LEVEL_TIME = 0.4F;      // seconds per charge level
+    inline constexpr std::uint8_t CHARGE_LEVELS = 5;
+    inline constexpr float BEAM_SPEED = 400.0F;
+    inline constexpr std::array<Vec2D, CHARGE_LEVELS> BEAM_SIZES = {{  // client beam sprites (r-typesheet1)
+        { 17.0F, 12.0F }, { 33.0F, 12.0F }, { 49.0F, 14.0F }, { 65.0F, 14.0F }, { 81.0F, 16.0F },
+    }};
+
+    inline constexpr std::uint8_t MISSILE_DAMAGE = 1;
+    inline constexpr std::uint16_t PATA_PATA_HEALTH = 1;
+
     inline constexpr std::uint8_t PLAYER_LIVES = 3;
     inline constexpr std::uint32_t ENEMY_SCORE = 100;
     inline constexpr float RESPAWN_INVULNERABILITY = 2.0F;  // the client blinks the ship as long (Game-Client: BLINK_DURATION)
@@ -45,6 +57,30 @@ namespace RType::Rules {
     constexpr bool isEnemy(EntityType type) noexcept
     {
         return type == EntityCreate::ENEMY_PATA_PATA || type == EntityCreate::ENEMY_SCANT;
+    }
+
+    // Charge level (0 to CHARGE_LEVELS) after holding the trigger for `seconds`
+    constexpr std::uint8_t chargeLevel(float seconds) noexcept
+    {
+        auto level = static_cast<int>(seconds / CHARGE_LEVEL_TIME);
+
+        return static_cast<std::uint8_t>(level < 0 ? 0 : (level > CHARGE_LEVELS ? CHARGE_LEVELS : level));
+    }
+
+    constexpr bool isBeam(EntityType type) noexcept
+    {
+        return type >= EntityCreate::PLAYER_BEAM_1 && type <= EntityCreate::PLAYER_BEAM_5;
+    }
+
+    // Level 1 to 5: a beam deals one more damage than its level
+    constexpr EntityType beamType(std::uint8_t level) noexcept
+    {
+        return static_cast<EntityType>(EntityCreate::PLAYER_BEAM_1 + level - 1);
+    }
+
+    constexpr std::uint8_t beamDamage(std::uint8_t level) noexcept
+    {
+        return static_cast<std::uint8_t>(level + 1);
     }
 
     constexpr bool overlap(Vec2D a, Vec2D aSize, Vec2D b, Vec2D bSize) noexcept
