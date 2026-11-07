@@ -10,11 +10,15 @@
 
 #include <protecs/networking.hpp>
 #include <wrecks/utils.hpp>
-#include <optional>
+#include <array>
 
 
 namespace RType::Components {
     struct InputBuffer {
-        std::optional<Protecs::Networking::Packets::PlayerInput> queuedInput;
+        std::array<Protecs::Networking::Packets::PlayerInput, 50> buffer;
+        std::size_t queued;
+
+        void push(const Protecs::Networking::Packets::PlayerInput& input) noexcept;
+        void clear() noexcept;
     };
 }
