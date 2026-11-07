@@ -281,6 +281,10 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data
 
     entityList.entities.reserve(m_Game.m_Engine.entities().size());
     for (auto [entity, serverSig] : m_Game.m_Engine.entities()) {
+        // Deleted entities keep their slot (empty signature) until it is reused
+        if (!m_Game.m_Engine.hasComponent<Components::NetworkID>(entity))
+            continue;
+
         const auto signature = serverSig & Protecs::Components::Manager::mask();  // remove server-side components
         auto& network = m_Game.m_Engine.get<Components::NetworkID>()[entity];
 
