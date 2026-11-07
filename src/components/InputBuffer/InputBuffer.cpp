@@ -9,12 +9,16 @@
 #include "InputBuffer.hpp"
 
 
-void RType::Components::InputBuffer::set(Protecs::Tick tick, const Protecs::Networking::Packets::PlayerInput& input)
+void RType::Components::InputBuffer::push(const Protecs::Networking::Packets::PlayerInput& input) noexcept
 {
-    buffer[tick % buffer.size()] = input;
+    if (queued == buffer.size())
+        return;
+
+    buffer[queued] = input;
+    queued++;
 }
 
-auto RType::Components::InputBuffer::get(Protecs::Tick tick) -> const std::optional<Protecs::Networking::Packets::PlayerInput>&
+void RType::Components::InputBuffer::clear() noexcept
 {
-    return buffer[tick % buffer.size()];
+    queued = 0;
 }
