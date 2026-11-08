@@ -59,6 +59,20 @@ namespace RType::Rules {
     inline constexpr Vec2D PICKUP_SIZE = { 9.0F * PICKUP_SCALE, 8.0F * PICKUP_SCALE };
     inline constexpr float PICKUP_SPEED = SCROLL_SPEED * Protecs::MAP_MAX_Y / 240.0F;  // drifts with the background
 
+    // The Force (R-Type's attachable pod), from POW Armors. Sizes are the client sprite frames, so that
+    // the outline clients draw around entities (accessibility) is the hitbox
+    inline constexpr Vec2D POW_ARMOR_SIZE = { 33.0F, 33.0F };        // r-typesheet7
+    inline constexpr std::uint16_t POW_ARMOR_HEALTH = 1;
+    inline constexpr Vec2D PICKUP_FORCE_SIZE = { 17.0F, 16.0F };     // r-typesheet3
+    inline constexpr std::uint8_t FORCE_LEVELS = 3;
+    inline constexpr std::array<Vec2D, FORCE_LEVELS> FORCE_SIZES = {{ { 30.0F, 22.0F }, { 34.0F, 28.0F }, { 32.0F, 32.0F } }};  // r-typesheet2
+    inline constexpr float FORCE_LAUNCH_SPEED = 300.0F;     // world units per second
+    inline constexpr float FORCE_LAUNCH_DISTANCE = 250.0F;  // then it floats, unless the screen edge comes first
+    inline constexpr float FORCE_RETURN_SPEED = 250.0F;
+    inline constexpr float FORCE_HIT_INTERVAL = 0.2F;       // seconds between two contact hits (damage: its level)
+    inline constexpr float FORCE_SPREAD_SPEED = 60.0F;      // vertical speed of its side missiles (levels 2 and 3)
+    inline constexpr std::uint32_t FORCE_MAX_SCORE = 1000;  // a Force item taken at the last level
+
     // Pattern::Sine
     inline constexpr float SINE_AMPLITUDE = 40.0F;         // world units above and below the starting height
     inline constexpr float SINE_PERIOD = 2.0F;             // seconds
@@ -89,6 +103,23 @@ namespace RType::Rules {
     constexpr std::uint8_t beamDamage(std::uint8_t level) noexcept
     {
         return static_cast<std::uint8_t>(level + 1);
+    }
+
+    constexpr bool isForce(EntityType type) noexcept
+    {
+        return type >= EntityCreate::FORCE_1 && type <= EntityCreate::FORCE_3;
+    }
+
+    // Level 1 to FORCE_LEVELS
+    constexpr EntityType forceType(std::uint8_t level) noexcept
+    {
+        return static_cast<EntityType>(EntityCreate::FORCE_1 + level - 1);
+    }
+
+    // Top-left corner of a Force attached to the front or the back of a ship hitbox, centred on its height
+    constexpr Vec2D forcePosition(Vec2D ship, Vec2D shipSize, Vec2D forceSize, bool front) noexcept
+    {
+        return { front ? ship.x + shipSize.x : ship.x - forceSize.x, ship.y + (shipSize.y - forceSize.y) / 2.0F };
     }
 
     constexpr bool overlap(Vec2D a, Vec2D aSize, Vec2D b, Vec2D bSize) noexcept

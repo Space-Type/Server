@@ -23,6 +23,7 @@ namespace RType::Systems {
                    BurstFire,
                    Shooting,
                    Flight,
+                   ForceControl,
                    Collisions,
                    Looting,
                    Collecting,

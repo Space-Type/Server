@@ -15,6 +15,7 @@
 #include "../../../src/systems/Collecting/Collecting.hpp"
 #include "../../../src/systems/Collisions/Collisions.hpp"
 #include "../../../src/systems/Flight/Flight.hpp"
+#include "../../../src/systems/ForceControl/ForceControl.hpp"
 #include "../../../src/systems/Looting/Looting.hpp"
 #include "../../../src/systems/PhaseChange/PhaseChange.hpp"
 #include "../../../src/systems/Scrolling/Scrolling.hpp"

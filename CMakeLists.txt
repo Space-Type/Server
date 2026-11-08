@@ -86,6 +86,8 @@ set(SOURCES
     src/systems/PhaseChange/PhaseChange.cpp
     src/systems/PhaseChange/PhaseChange.hpp
     src/systems/Flight/Flight.hpp
+    src/systems/ForceControl/ForceControl.cpp
+    src/systems/ForceControl/ForceControl.hpp
     src/systems/Scrolling/Scrolling.cpp
     src/systems/Scrolling/Scrolling.hpp
     src/systems/Shooting/Shooting.cpp
