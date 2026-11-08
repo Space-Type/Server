@@ -17,6 +17,15 @@
 namespace RType::Systems {
     using Tuple = Wrecks::Utils::concat_types_t<
         Protecs::Systems::Tuple,
-        std::tuple<BufferedInput>
+        std::tuple<BufferedInput,
+                   Scrolling,
+                   StageSpawner,
+                   BurstFire,
+                   Shooting,
+                   Flight,
+                   Collisions,
+                   Attachment,
+                   BossDefeat,
+                   StageTransition>
     >;
 }
