@@ -411,7 +411,7 @@ void RType::Game::Game::EventHandler::operator()(const Packets::PlayerJoin& data
     m_Game.m_OutgoingEvents.emplace_back(&m_Player, Packets::PlayerId{ networkId });
 
     // send simulation tick sync to player
-    operator()(Packets::TickSync{ .clientTick = 0 });
+    operator()(Packets::TickSync{ .clientTick = 0, .clientTime = std::chrono::steady_clock::now() });
 
     m_Game.broadcastPacket(Packets::EntityCreate{ .simulationTick = m_Game.m_SimulationTick, .id = networkId, .type = Packets::EntityCreate::PLAYER });
     m_Game.makePlayer(playerEntity);
