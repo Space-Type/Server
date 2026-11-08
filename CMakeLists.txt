@@ -90,6 +90,8 @@ set(SOURCES
     src/systems/Flight/Flight.hpp
     src/systems/ForceControl/ForceControl.cpp
     src/systems/ForceControl/ForceControl.hpp
+    src/systems/ForceFire/ForceFire.cpp
+    src/systems/ForceFire/ForceFire.hpp
     src/systems/Scrolling/Scrolling.cpp
     src/systems/Scrolling/Scrolling.hpp
     src/systems/Shielding/Shielding.cpp

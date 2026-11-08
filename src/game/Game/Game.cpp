@@ -54,6 +54,7 @@ RType::Game::Game::Game() noexcept
     m_Engine.get<Systems::Flight>().setRequests(m_Requests);
     m_Engine.get<Systems::Collisions>().setRequests(m_Requests);
     m_Engine.get<Systems::ForceControl>().setRequests(m_Requests);
+    m_Engine.get<Systems::ForceFire>().setRequests(m_Requests);
     m_Engine.get<Systems::Shielding>().setRequests(m_Requests);
     m_Engine.get<Systems::ContactHits>().setRequests(m_Requests);
     m_Engine.get<Systems::Looting>().setRequests(m_Requests);

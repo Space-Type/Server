@@ -22,6 +22,7 @@ namespace RType::Systems {
                    StageSpawner,
                    BurstFire,
                    Shooting,
+                   ForceFire,
                    Flight,
                    ForceControl,
                    Shielding,
