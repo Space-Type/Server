@@ -280,7 +280,7 @@ void RType::Game::Game::makePlayer(Wrecks::ECS::Entity entity)
 {
     addSharedComponent(entity, Protecs::Components::Transform{ .position = {}, .rotation = 0.0, .scale = 1.0 });
     addSharedComponent(entity, Protecs::Components::Velocity{});
-    addSharedComponent(entity, Protecs::Components::Movement{ {}, 1.f });
+    addSharedComponent(entity, Protecs::Components::Movement{ {}, 0.8f });
     addSharedComponent(entity, Protecs::Components::PlayerInput{});
     addSharedComponent(entity, Protecs::Components::PlayerName::fromStr(m_Engine.get<Components::Player>()[entity].name));
     m_Engine.addComponent(entity, Components::InputBuffer{});
