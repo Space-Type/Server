@@ -119,10 +119,69 @@ namespace {
         }
     }
 
+    /**
+     * Stage 2 boss: the Gomander, a mass of flesh and tentacles
+     * lying on the cave floor. Its eye, on top, is the weak point
+     * and leads; its body is an armored part under it. It enters
+     * from the right, stops, and fires bursts from its eye; at a
+     * third of its health it gets angry (bigger bursts). Positions
+     * in pixels of its sprite (r-typesheet32, 256 x 140), drawn
+     * SCALE times bigger.
+     */
+    namespace Gomander {
+        constexpr float SCALE = 1.4F;                         // about the right half of the screen
+        constexpr Vec2D SPRITE = { 256.0F, 140.0F };
+        constexpr Vec2D BODY_OFFSET = { 64.0F, 40.0F };       // the mass under the eye: hurts on contact, absorbs shots
+        constexpr Vec2D BODY_SIZE = { 144.0F, 100.0F };
+        constexpr Vec2D CORE_OFFSET = { 112.0F, 12.0F };      // the eye
+        constexpr Vec2D CORE_SIZE = { 28.0F, 20.0F };
+        constexpr Vec2D MUZZLE = { 14.0F, 10.0F };            // its shots leave from the middle of the eye
+        constexpr float SPEED = 40.0F;                        // entering from the right
+        constexpr float MARGIN = 10.0F;                       // from the right edge once in place
+        constexpr float FLOOR = 20.0F;                        // from the bottom of the screen: it lies on the cave floor
+        constexpr std::uint16_t HEALTH = 50;
+        constexpr std::uint32_t REWARD = 5000;
+        constexpr Components::Enrage ENRAGE = { .hpAtMost = HEALTH / 3, .burstCount = 5, .burstInterval = 1.5F };
+
+        constexpr Vec2D CORE = CORE_OFFSET * SCALE;
+
+        RType::Game::SpawnRequest blueprint()
+        {
+            constexpr float TOP = Protecs::MAP_MAX_Y - FLOOR - SPRITE.y * SCALE;
+            constexpr float STOP_X = Protecs::MAP_MAX_X - SPRITE.x * SCALE - MARGIN;
+
+            return {
+                .type = EntityCreate::ENEMY_GOMANDER_CORE,
+                .position = { Protecs::MAP_MAX_X + CORE.x, TOP + CORE.y },
+                .size = CORE_SIZE * SCALE,
+                .velocity = { -SPEED, 0.0F },
+                .components = {
+                    Protecs::Components::Health{ .hp = HEALTH, .max = HEALTH },
+                    Components::Enemy{ .reward = REWARD },
+                    Components::Boss{},
+                    Components::StopAt{ .x = STOP_X + CORE.x },
+                    Components::AimedBursts{ .count = 3, .shotInterval = 0.25F, .burstInterval = 2.0F, .speed = 120.0F,
+                                             .muzzle = MUZZLE * SCALE },
+                    Protecs::Components::BossPhase{ .phase = 1 },
+                    ENRAGE,
+                },
+                .parts = {{
+                    .type = EntityCreate::ENEMY_GOMANDER,
+                    .position = { -CORE.x, -CORE.y },  // the sprite's top-left corner, where clients draw it
+                    .size = BODY_SIZE * SCALE,
+                    .offset = BODY_OFFSET * SCALE,
+                    .scale = SCALE,
+                    .components = { Components::Enemy{}, Components::Armored{} },
+                }},
+            };
+        }
+    }
+
     using BossBlueprint = RType::Game::SpawnRequest (*)();
 
-    constexpr std::array<std::pair<std::string_view, BossBlueprint>, 1> BOSSES = {{
+    constexpr std::array<std::pair<std::string_view, BossBlueprint>, 2> BOSSES = {{
         { "dobkeratops", &Dobkeratops::blueprint },
+        { "gomander", &Gomander::blueprint },
     }};
 }
 
