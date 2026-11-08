@@ -33,6 +33,7 @@ void RType::Systems::BufferedInput::operator()(Wrecks::ECS::Entity entity, Wreck
             case PlayerInput::LEFT:    input.left    = inputQueue.buffer[i].state == PlayerInput::HOLD_DOWN; break;
             case PlayerInput::RIGHT:   input.right   = inputQueue.buffer[i].state == PlayerInput::HOLD_DOWN; break;
             case PlayerInput::TRIGGER: input.trigger = inputQueue.buffer[i].state == PlayerInput::HOLD_DOWN; break;
+            case PlayerInput::FORCE:   input.force   = inputQueue.buffer[i].state == PlayerInput::HOLD_DOWN; break;
         }
     }
 

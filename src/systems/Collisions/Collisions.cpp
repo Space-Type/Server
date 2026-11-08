@@ -7,6 +7,7 @@
 */
 
 #include "Collisions.hpp"
+#include "../../game/Damage/Damage.hpp"
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
 #include <algorithm>
@@ -135,23 +136,8 @@ void RType::Systems::Collisions::hitPlayer(Wrecks::ECS::Entity player)
     }
 }
 
-/**
- * Takes `amount` hit points from an enemy (one without
- * Health dies at the first hit). Killed: it is destroyed
- * with its Health at 0 (as a kill: it may drop its Loot),
- * and true is returned.
- */
+// See Game::damage
 bool RType::Systems::Collisions::damage(Wrecks::ECS::Entity enemy, std::uint8_t amount)
 {
-    auto& engine = *reinterpret_cast<Game::Engine*>(m_Engine);
-
-    if (engine.hasComponent<Protecs::Components::Health>(enemy)) {
-        auto& health = engine.get<Protecs::Components::Health>()[enemy];
-
-        health.hp = health.hp > amount ? static_cast<std::uint16_t>(health.hp - amount) : 0;
-        if (health.hp > 0)
-            return false;
-    }
-    m_Requests->kill(enemy);
-    return true;
+    return Game::damage(*reinterpret_cast<Game::Engine*>(m_Engine), *m_Requests, enemy, amount);
 }

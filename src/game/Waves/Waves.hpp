@@ -27,7 +27,7 @@ namespace RType::Game {
         float y;                    // world units, top of the enemy
         bool randomY = false;       // `random` in the file: y is drawn when the enemy appears
         Components::Pattern pattern;
-        Components::Loot loot;      // what it may drop when a player kills it
+        std::optional<Components::Loot> loot;  // what it may drop when a player kills it (none: Blueprints::enemy's default)
     };
 
     // A stage: how long it scrolls, its enemies, and the boss at its end
@@ -51,10 +51,11 @@ namespace RType::Game {
      *
      * y is `random` for a height drawn when the enemy appears
      * (Rules::RANDOM_Y_MIN to RANDOM_Y_MAX), different in every
-     * game. Types: pata-pata. Movements: straight, sine. The loot
-     * is optional: `life` always drops a life, `life:<chance>` with
-     * a chance from 0 to 1, `none` nothing; without it, a life
-     * with Rules::LIFE_DROP_CHANCE. Bosses: see
+     * game. Types: pata-pata, pow-armor. Movements: straight,
+     * sine. The loot is optional: `life` or `force` always drops
+     * that item, `life:<chance>` or `force:<chance>` with a chance
+     * from 0 to 1, `none` nothing; without it, the enemy's own
+     * (Blueprints::enemy). Bosses: see
      * Blueprints::isBoss. Empty lines and lines starting with
      * '#' are skipped. An invalid line is skipped too, and
      * described in `errors` (with its number): a broken file

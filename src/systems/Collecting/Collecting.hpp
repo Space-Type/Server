@@ -51,5 +51,6 @@ namespace RType::Systems {
 
         private:
             void give(Components::Item item, Wrecks::ECS::Entity player);
+            void giveForce(Wrecks::ECS::Entity player);
     };
 }
