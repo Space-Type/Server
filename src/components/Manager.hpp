@@ -32,6 +32,9 @@ namespace RType::Components {
                                       Swing,
                                       Enrage,
                                       Loot,
-                                      Pickup>
+                                      Pickup,
+                                      Force,
+                                      ContactDamage,
+                                      Shield>
     >;
 }

@@ -34,8 +34,10 @@ set(SOURCES
     src/components/Attached/Attached.hpp
     src/components/Body/Body.hpp
     src/components/Boss/Boss.hpp
+    src/components/ContactDamage/ContactDamage.hpp
     src/components/Enemy/Enemy.hpp
     src/components/Enrage/Enrage.hpp
+    src/components/Force/Force.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/LevelState/LevelState.hpp
     src/components/Loot/Loot.hpp
@@ -46,6 +48,7 @@ set(SOURCES
     src/components/Player/Player.cpp
     src/components/Player/Player.hpp
     src/components/RandomShots/RandomShots.hpp
+    src/components/Shield/Shield.hpp
     src/components/StopAt/StopAt.hpp
     src/components/Swing/Swing.hpp
     src/components/Manager.hpp
