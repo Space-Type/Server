@@ -114,11 +114,11 @@ void RType::Game::Server::sendOutgoingEvents()
     Game::Game::Event evt;
 
     while (m_Game.popEvent(evt)) {
-        auto& [player, data] = evt;
+        auto& [address, data] = evt;
 
         auto packet = Protecs::Networking::Packet::serialize(data);
-        logger.trace() << "sending " << packet << " to " << player->address << std::endl;
-        m_Socket.send(packet, player->address);
+        logger.trace() << "sending " << packet << " to " << address << std::endl;
+        m_Socket.send(packet, address);
     }
 }
 
