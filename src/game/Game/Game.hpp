@@ -25,10 +25,12 @@ namespace RType::Game {
         static constexpr unsigned int      UPDATES_PER_INPUT_SYNC = 10;
         static constexpr Wrecks::DeltaTime GAMEPLAY_RATE = std::chrono::duration<double>(1.0 / 60.0);
 
-        using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
+        // Events name their player by address: a pointer to its component would not survive
+        // the component storage moving (a player joining or leaving)
+        using InternalEvent = std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>;
 
         public:
-            using Event = std::pair<const Components::Player*, Protecs::Networking::Packets::PacketData>;
+            using Event = std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>;
 
         private:
             Engine m_Engine;
