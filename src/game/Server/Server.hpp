@@ -48,12 +48,14 @@ namespace RType::Game {
                 std::string_view m_Host;
                 std::uint16_t m_Port;
                 DevOptions m_Dev;
+                unsigned int m_MaxPlayers;
 
                 public:
                     Builder() noexcept;
 
                     Builder&& setHost(std::string_view host) &&;
                     Builder&& setPort(std::uint16_t port) &&;
+                    Builder&& setMaxPlayers(unsigned int count) &&;
                     Builder&& setLogStream(std::ostream& output) &&;
                     Builder&& setLogLevel(Utils::Logger::Level level) &&;
                     Builder&& setDevOptions(const DevOptions& dev) &&;

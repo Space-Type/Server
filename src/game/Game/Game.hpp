@@ -26,9 +26,8 @@ namespace RType::Game {
     class Game {
         static constexpr Wrecks::DeltaTime NETWORK_UPDATE_RATE = std::chrono::duration<double>(1.0 / 20.0);
         static constexpr unsigned int      UPDATES_PER_INPUT_SYNC = 10;
+        static constexpr unsigned int      DEFAULT_MAX_PLAYERS = 4;
 
-        // Events name their player by address: a pointer to its component would not survive
-        // the component storage moving (a player joining or leaving)
         using InternalEvent = std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>;
 
         public:
@@ -49,6 +48,8 @@ namespace RType::Game {
 
             std::function<void(Protecs::Tick)> m_PullEvents;
 
+            unsigned int m_MaxPlayers;
+
             // Level and requests of the systems: used by the functions of Level.cpp
             Requests m_Requests;                    // asked by the systems, applied after each fixed update
             std::optional<Wrecks::ECS::Entity> m_Level;  // exists while at least one player is connected
@@ -60,6 +61,7 @@ namespace RType::Game {
 
             template <typename Fnc>
             void setEventRetriever(Fnc&& fnc) { m_PullEvents = std::move(fnc); }
+            inline void setMaxPlayers(unsigned int max) noexcept { m_MaxPlayers = max; }
 
             void update(Wrecks::DeltaTime dt);
 

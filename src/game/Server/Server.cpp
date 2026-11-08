@@ -154,6 +154,7 @@ RType::Game::Server::Builder::Builder() noexcept
     : m_Host("0.0.0.0")
     , m_Port(8080)
     , m_Dev()
+    , m_MaxPlayers(4)
 {
 }
 
@@ -166,6 +167,12 @@ auto RType::Game::Server::Builder::setHost(std::string_view host) && -> Builder&
 auto RType::Game::Server::Builder::setPort(std::uint16_t port) && -> Builder&&
 {
     m_Port = port;
+    return std::move(*this);
+}
+
+auto RType::Game::Server::Builder::setMaxPlayers(unsigned int count) && -> Builder&&
+{
+    m_MaxPlayers = count;
     return std::move(*this);
 }
 
@@ -189,5 +196,9 @@ auto RType::Game::Server::Builder::setDevOptions(const DevOptions& dev) && -> Bu
 
 auto RType::Game::Server::Builder::build() && -> Server
 {
-    return Server(m_Host, m_Port, m_Dev);
+    Server server(m_Host, m_Port, m_Dev);
+
+    server.m_Game.setMaxPlayers(m_MaxPlayers);
+
+    return server;
 }
