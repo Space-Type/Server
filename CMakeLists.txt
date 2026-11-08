@@ -35,6 +35,7 @@ set(SOURCES
     src/components/Body/Body.hpp
     src/components/Boss/Boss.hpp
     src/components/Enemy/Enemy.hpp
+    src/components/Enrage/Enrage.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/LevelState/LevelState.hpp
     src/components/InputBuffer/InputBuffer.hpp
@@ -44,6 +45,7 @@ set(SOURCES
     src/components/Player/Player.hpp
     src/components/RandomShots/RandomShots.hpp
     src/components/StopAt/StopAt.hpp
+    src/components/Swing/Swing.hpp
     src/components/Manager.hpp
     src/game/Blueprints/Blueprints.cpp
     src/game/Blueprints/Blueprints.hpp
@@ -70,6 +72,8 @@ set(SOURCES
     src/systems/Collisions/Collisions.cpp
     src/systems/Collisions/Collisions.hpp
     src/systems/Flight/Flight.cpp
+    src/systems/PhaseChange/PhaseChange.cpp
+    src/systems/PhaseChange/PhaseChange.hpp
     src/systems/Flight/Flight.hpp
     src/systems/Scrolling/Scrolling.cpp
     src/systems/Scrolling/Scrolling.hpp
@@ -79,6 +83,8 @@ set(SOURCES
     src/systems/StageSpawner/StageSpawner.hpp
     src/systems/StageTransition/StageTransition.cpp
     src/systems/StageTransition/StageTransition.hpp
+    src/systems/Swinging/Swinging.cpp
+    src/systems/Swinging/Swinging.hpp
     src/systems/BufferedInput/BufferedInput.hpp
     src/systems/Tuple.hpp
     src/utils/Logger/Logger.cpp
