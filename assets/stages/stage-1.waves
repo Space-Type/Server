@@ -4,6 +4,9 @@
 # The scrolling stops when the end of stage-1.png (4224 px wide) reaches the
 # right edge of the screen (~427 px of background shown): 4224 - 427 = 3797.
 # The boss comes then.
+#
+# y is the top of the enemy (0 at the top of the screen), or random: a height
+# drawn when the enemy appears, different in every game.
 length 3797
 boss   dobkeratops
 
@@ -155,3 +158,18 @@ boss   dobkeratops
 3570           pata-pata  300  straight
 3600           pata-pata  300  straight
 3630           pata-pata  300  straight
+
+# isolated enemies at a random height, between the formations
+280            pata-pata  random  straight
+500            pata-pata  random  sine
+860            pata-pata  random  straight
+1230           pata-pata  random  sine
+1480           pata-pata  random  straight
+1740           pata-pata  random  sine
+1960           pata-pata  random  straight
+2200           pata-pata  random  sine
+2440           pata-pata  random  straight
+2670           pata-pata  random  sine
+2920           pata-pata  random  straight
+3200           pata-pata  random  sine
+3700           pata-pata  random  straight
