@@ -10,6 +10,7 @@
 #include <chrono>
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
+#include <tuple>
 #include <variant>
 #include <vector>
 
@@ -312,6 +313,18 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityDelete& da
     logger.debug() << "handling " << data.packetName() << " from " << m_Player.name << std::endl;
 }
 
+/**
+ * Entities that fit in one EntityList packet: the packet buffer
+ * (Packet::raw) holds the packet type, the list header and
+ * a few (network id, signature) pairs. Clients handle every
+ * EntityList packet on its own.
+ */
+static constexpr std::size_t ENTITY_LIST_MAX =
+    (std::tuple_size_v<decltype(Protecs::Networking::Packet::raw)> - 1 - Packets::EntityList::partialPackedSize())
+    / (sizeof(Protecs::NetworkEntity) + sizeof(Protecs::Signature));
+
+static_assert(ENTITY_LIST_MAX > 0, "an EntityList packet must hold at least one entity");
+
 void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data)
 {
     logger.debug() << "handling " << data.packetName() << " for " << m_Player.name << std::endl;
@@ -328,9 +341,16 @@ void RType::Game::Game::EventHandler::operator()(const Packets::EntityList& data
         auto& network = m_Game.m_Engine.get<Components::NetworkID>()[entity];
 
         entityList.entities.emplace_back(network.id, signature);
+
+        // A packet only holds a few entities: send the list in several of them
+        if (entityList.entities.size() == ENTITY_LIST_MAX) {
+            m_Game.m_OutgoingEvents.emplace_back(m_Player.address, entityList);
+            entityList.entities.clear();
+        }
     }
 
-    m_Game.m_OutgoingEvents.emplace_back(m_Player.address, std::move(entityList));
+    if (!entityList.entities.empty())
+        m_Game.m_OutgoingEvents.emplace_back(m_Player.address, std::move(entityList));
 }
 
 
