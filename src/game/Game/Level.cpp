@@ -12,6 +12,7 @@
 #include <rtype/utils.hpp>
 #include <algorithm>
 #include <array>
+#include <stdexcept>
 #include <format>
 #include <string>
 #include <type_traits>
@@ -111,13 +112,17 @@ void RType::Game::Game::startLevel()
     m_Level = level;
     m_Engine.addComponent(level, Components::NetworkID{ networkId });
     // --start: the waves before the starting progression are skipped, not all spawned at once
+    // --stage: that stage's waves (setDevOptions checked it exists)
     std::size_t firstWave = 0;
 
-    if (!m_Stages.empty())
-        firstWave = static_cast<std::size_t>(std::ranges::lower_bound(m_Stages[0].waves, m_Dev.start, {}, &Wave::progression) - m_Stages[0].waves.begin());
+    if (m_Dev.stage <= m_Stages.size()) {
+        const auto& waves = m_Stages[m_Dev.stage - 1].waves;
+
+        firstWave = static_cast<std::size_t>(std::ranges::lower_bound(waves, m_Dev.start, {}, &Wave::progression) - waves.begin());
+    }
     m_Engine.addComponent(level, Components::LevelState{ .distance = static_cast<float>(m_Dev.start), .nextWave = firstWave });
     broadcastPacket(Packets::EntityCreate{ .simulationTick = m_SimulationTick, .id = networkId.id, .type = Packets::EntityCreate::GENERIC });
-    addSharedComponent(level, Protecs::Components::Level{ .progression = m_Dev.start, .stage = 1 });
+    addSharedComponent(level, Protecs::Components::Level{ .progression = m_Dev.start, .stage = m_Dev.stage });
     logger.info() << "level started" << std::endl;
 }
 
@@ -146,12 +151,15 @@ void RType::Game::Game::endLevel()
 
 void RType::Game::Game::setDevOptions(const DevOptions& dev)
 {
+    if (dev.stage > std::max<std::size_t>(m_Stages.size(), 1))
+        throw std::invalid_argument("--stage " + std::to_string(dev.stage) + ": there are only " + std::to_string(m_Stages.size())
+                                    + " stage files (assets/stages/stage-<n>.waves)");
     m_Dev = dev;
     m_Engine.get<Systems::Collisions>().setInvincible(dev.god);
     m_Engine.get<Systems::Scrolling>().setSpeed(dev.speed);
     m_Engine.get<Systems::Looting>().setChance(dev.dropRate);
     if (dev.any())
         logger.warning() << "developer options on: god " << (dev.god ? "on" : "off") << ", speed x" << dev.speed
-                         << ", start at " << dev.start << ", drop rate " << (dev.dropRate ? std::format("{}", *dev.dropRate) : "per stage file")
+                         << ", stage " << static_cast<int>(dev.stage) << ", start at " << dev.start << ", drop rate " << (dev.dropRate ? std::format("{}", *dev.dropRate) : "per stage file")
                          << " (never on a real server)" << std::endl;
 }

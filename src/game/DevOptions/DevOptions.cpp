@@ -8,6 +8,7 @@
 
 #include "DevOptions.hpp"
 #include <charconv>
+#include <cstdint>
 #include <stdexcept>
 #include <string>
 
@@ -45,6 +46,12 @@ auto RType::Game::parseCommandLine(int argc, const char* const* argv) -> Command
             line.dev.speed = parseValue<float>(option, argc, argv, i);
             if (!(line.dev.speed > 0.0F && line.dev.speed <= DEV_SPEED_MAX))
                 throw std::invalid_argument("--speed must be above 0 and at most 50");
+        } else if (option == "--stage") {
+            auto stage = parseValue<std::uint32_t>(option, argc, argv, i);
+
+            if (stage < 1 || stage > UINT8_MAX)
+                throw std::invalid_argument("--stage must be from 1 to 255");
+            line.dev.stage = static_cast<std::uint8_t>(stage);
         } else if (option == "--start") {
             line.dev.start = parseValue<std::uint32_t>(option, argc, argv, i);
         } else if (option == "--drop-rate") {
