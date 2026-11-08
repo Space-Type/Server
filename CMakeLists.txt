@@ -54,6 +54,8 @@ set(SOURCES
     src/components/Manager.hpp
     src/game/Blueprints/Blueprints.cpp
     src/game/Blueprints/Blueprints.hpp
+    src/game/Damage/Damage.cpp
+    src/game/Damage/Damage.hpp
     src/game/DevOptions/DevOptions.cpp
     src/game/DevOptions/DevOptions.hpp
     src/game/Game/Game.cpp
