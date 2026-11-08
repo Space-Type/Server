@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../Game/Game.hpp"
+#include "../DevOptions/DevOptions.hpp"
 #include <rtype/utils.hpp>
 #include <protecs/networking.hpp>
 #include <string_view>
@@ -24,7 +25,7 @@ namespace RType::Game {
         Protecs::Networking::PacketQueue m_PendingRequests;
 
         private:
-            Server(std::string_view host, std::uint16_t port);
+            Server(std::string_view host, std::uint16_t port, const DevOptions& dev);
 
         public:
             Server(const Server& cpy) = delete;
@@ -46,6 +47,7 @@ namespace RType::Game {
             class Builder {
                 std::string_view m_Host;
                 std::uint16_t m_Port;
+                DevOptions m_Dev;
 
                 public:
                     Builder() noexcept;
@@ -54,6 +56,7 @@ namespace RType::Game {
                     Builder&& setPort(std::uint16_t port) &&;
                     Builder&& setLogStream(std::ostream& output) &&;
                     Builder&& setLogLevel(Utils::Logger::Level level) &&;
+                    Builder&& setDevOptions(const DevOptions& dev) &&;
 
                     Server build() &&;
             };

@@ -15,7 +15,10 @@
 #include <functional>
 #include <chrono>
 #include <deque>
-#include <random>
+#include "../Requests/Requests.hpp"
+#include "../Waves/Waves.hpp"
+#include "../DevOptions/DevOptions.hpp"
+#include <optional>
 #include <vector>
 
 
@@ -23,12 +26,13 @@ namespace RType::Game {
     class Game {
         static constexpr Wrecks::DeltaTime NETWORK_UPDATE_RATE = std::chrono::duration<double>(1.0 / 20.0);
         static constexpr unsigned int      UPDATES_PER_INPUT_SYNC = 10;
-        static constexpr Wrecks::DeltaTime GAMEPLAY_RATE = std::chrono::duration<double>(1.0 / 60.0);
 
-        using InternalEvent = std::pair<Components::Player*, Protecs::Networking::Packets::PacketData>;
+        // Events name their player by address: a pointer to its component would not survive
+        // the component storage moving (a player joining or leaving)
+        using InternalEvent = std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>;
 
         public:
-            using Event = std::pair<const Components::Player*, Protecs::Networking::Packets::PacketData>;
+            using Event = std::pair<Protecs::Networking::Address, Protecs::Networking::Packets::PacketData>;
 
         private:
             Engine m_Engine;
@@ -37,6 +41,7 @@ namespace RType::Game {
             Wrecks::DeltaTime m_FixedUpdateElapsedTime;
             Wrecks::DeltaTime m_NetworkUpdateElapsedTime;
             unsigned int m_NetworkUpdates;
+            std::chrono::steady_clock::time_point m_LastPing;
 
             std::unordered_map<Protecs::Networking::Address, Wrecks::ECS::Entity> m_Players;
             std::deque<InternalEvent> m_IncomingEvents;
@@ -44,11 +49,11 @@ namespace RType::Game {
 
             std::function<void(Protecs::Tick)> m_PullEvents;
 
-            // Gameplay (Gameplay.cpp)
-            Wrecks::DeltaTime m_GameplayElapsedTime{};
-            float m_EnemySpawnTimer = 1.0F;  // seconds
-            std::minstd_rand m_Random{ static_cast<std::uint_fast32_t>(std::chrono::steady_clock::now().time_since_epoch().count()) };
-            std::vector<Wrecks::ECS::Entity> m_Destroyed;  // deleted at the end of the gameplay step
+            // Level and requests of the systems: used by the functions of Level.cpp
+            Requests m_Requests;                    // asked by the systems, applied after each fixed update
+            std::optional<Wrecks::ECS::Entity> m_Level;  // exists while at least one player is connected
+            std::vector<Stage> m_Stages;                  // assets/stages/stage-<n>.waves, stage n at n - 1
+            DevOptions m_Dev;
 
         public:
             Game() noexcept;
@@ -57,6 +62,9 @@ namespace RType::Game {
             void setEventRetriever(Fnc&& fnc) { m_PullEvents = std::move(fnc); }
 
             void update(Wrecks::DeltaTime dt);
+
+            // Cheats to test a level (off by default), logged as a warning when on
+            void setDevOptions(const DevOptions& dev);
 
             bool pushEvent(const Protecs::Networking::Address& sender, Protecs::Networking::Packets::PacketData&& data);
             bool popEvent(Event& evt);
@@ -70,23 +78,16 @@ namespace RType::Game {
 
             void makePlayer(Wrecks::ECS::Entity entity);
 
-            // Gameplay (Gameplay.cpp)
-            void updateGameplay(Wrecks::DeltaTime dt);
-            void stepGameplay(float seconds);
-            void initPlayerGameplay(Wrecks::ECS::Entity player);
-            Wrecks::ECS::Entity spawn(Protecs::Networking::Packets::EntityCreate::EntityType type,
-                                      Protecs::Utils::Vec2D<float> position, Protecs::Utils::Vec2D<float> size,
-                                      Protecs::Utils::Vec2D<float> velocity, Wrecks::ECS::Entity owner = 0);
-            void spawnEnemies(float seconds);
-            void shoot(float seconds);
-            void moveBodies(float seconds);
-            void collide();
-            void hitPlayer(Wrecks::ECS::Entity player);
-            void destroyLater(Wrecks::ECS::Entity entity);
-            void destroyQueued();
+            // Level and requests of the systems: implemented in Level.cpp
+            void applyRequests();
+            void spawnBody(const SpawnRequest& request, std::optional<Wrecks::ECS::Entity> parent = std::nullopt);
+            void initPlayerBody(Wrecks::ECS::Entity player);
+            void startLevel();
+            void endLevel();
 
             Wrecks::ECS::Entity findEntity(Protecs::NetworkEntity networkId) const;
             void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
+            void dropSilentPlayers();
 
             template <Wrecks::Utils::ContainerContainsType<Protecs::Components::Manager> C>
             void sendSharedComponent(Wrecks::ECS::Entity entity)

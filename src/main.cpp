@@ -7,13 +7,15 @@
 
 #include <rtype.hpp>
 #include <iostream>
+#include <stdexcept>
 
 
-static void run(int argc, char *argv[])
+static void run(const RType::Game::DevOptions& dev)
 {
     auto server = RType::Game::Server::Builder()
         .setHost("0.0.0.0")
         .setPort(5432)
+        .setDevOptions(dev)
         .build();
 
     server.run();
@@ -21,8 +23,21 @@ static void run(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    RType::Game::CommandLine line;
+
     try {
-        run(argc, argv);
+        line = RType::Game::parseCommandLine(argc, argv);
+    } catch (const std::invalid_argument& err) {
+        std::cerr << err.what() << "\n\n" << RType::Game::USAGE;
+        return 84;
+    }
+    if (line.help) {
+        std::cout << RType::Game::USAGE;
+        return 0;
+    }
+
+    try {
+        run(line.dev);
     } catch (const std::exception& err) {
         std::cerr << err.what() << std::endl;
     } catch (...) {
