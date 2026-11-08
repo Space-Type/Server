@@ -24,6 +24,7 @@ namespace RType::Game {
         std::uint32_t progression;  // background pixels (Level::progression)
         Protecs::Networking::Packets::EntityCreate::EntityType type;
         float y;                    // world units, top of the enemy
+        bool randomY = false;       // `random` in the file: y is drawn when the enemy appears
         Components::Pattern pattern;
     };
 
