@@ -77,6 +77,8 @@ set(SOURCES
     src/systems/Shooting/Shooting.hpp
     src/systems/StageSpawner/StageSpawner.cpp
     src/systems/StageSpawner/StageSpawner.hpp
+    src/systems/StageTransition/StageTransition.cpp
+    src/systems/StageTransition/StageTransition.hpp
     src/systems/BufferedInput/BufferedInput.hpp
     src/systems/Tuple.hpp
     src/utils/Logger/Logger.cpp

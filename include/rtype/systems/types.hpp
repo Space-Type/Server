@@ -17,3 +17,4 @@
 #include "../../../src/systems/Scrolling/Scrolling.hpp"
 #include "../../../src/systems/Shooting/Shooting.hpp"
 #include "../../../src/systems/StageSpawner/StageSpawner.hpp"
+#include "../../../src/systems/StageTransition/StageTransition.hpp"

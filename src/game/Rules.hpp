@@ -50,6 +50,7 @@ namespace RType::Rules {
 
     // Levels: the progression is in pixels of the stage background (Game-Client: assets/stages, 240 px high)
     inline constexpr float SCROLL_SPEED = 30.0F;           // background pixels per second
+    inline constexpr float STAGE_CLEAR_DELAY = 4.0F;       // seconds of "STAGE CLEAR" before the next stage (Game-Client: STAGE_CLEAR_ANNOUNCEMENT)
 
     // Pattern::Sine
     inline constexpr float SINE_AMPLITUDE = 40.0F;         // world units above and below the starting height

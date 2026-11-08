@@ -25,6 +25,7 @@ namespace RType::Systems {
                    Flight,
                    Collisions,
                    Attachment,
-                   BossDefeat>
+                   BossDefeat,
+                   StageTransition>
     >;
 }

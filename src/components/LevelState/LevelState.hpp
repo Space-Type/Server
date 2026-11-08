@@ -18,5 +18,6 @@ namespace RType::Components {
         std::size_t nextWave = 0;  // first wave of the stage file not spawned yet
         bool bossSpawned = false;  // the end of the stage is reached: the level stops scrolling
         bool cleared = false;      // the boss is dead
+        float clearedFor = 0.0F;   // seconds since the stage was cleared
     };
 }

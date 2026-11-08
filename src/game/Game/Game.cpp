@@ -45,6 +45,7 @@ RType::Game::Game::Game() noexcept
     m_Engine.get<Systems::Collisions>().setRequests(m_Requests);
     m_Engine.get<Systems::Attachment>().setRequests(m_Requests);
     m_Engine.get<Systems::BossDefeat>().setRequests(m_Requests);
+    m_Engine.get<Systems::StageTransition>().setStages(m_Stages);
 }
 
 /**
