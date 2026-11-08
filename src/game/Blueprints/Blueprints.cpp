@@ -140,6 +140,7 @@ auto RType::Game::Blueprints::enemy(const Wave& wave, float cooldown) -> SpawnRe
             Protecs::Components::Health{ .hp = Rules::PATA_PATA_HEALTH, .max = Rules::PATA_PATA_HEALTH },
             Components::Enemy{ .reward = Rules::ENEMY_SCORE },
             Components::RandomShots{ .min = Rules::ENEMY_SHOT_MIN, .max = Rules::ENEMY_SHOT_MAX },
+            wave.loot,
         },
     };
 }

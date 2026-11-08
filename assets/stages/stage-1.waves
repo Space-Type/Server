@@ -7,17 +7,20 @@
 #
 # y is the top of the enemy (0 at the top of the screen), or random: a height
 # drawn when the enemy appears, different in every game.
+#
+# loot (optional) is what the enemy drops when a player kills it: life (always),
+# life:<chance> (0 to 1) or none. Without it, a life one time in ten.
 length 3797
 boss   dobkeratops
 
-# progression  type       y    movement
+# progression  type       y    movement  loot
 
 # formation at 120
 120            pata-pata  80   sine
 150            pata-pata  80   sine
 180            pata-pata  80   sine
 210            pata-pata  80   sine
-240            pata-pata  80   sine
+240            pata-pata  80   sine      life
 
 # formation at 330
 330            pata-pata  300  sine
@@ -83,7 +86,7 @@ boss   dobkeratops
 1830           pata-pata  220  straight
 1860           pata-pata  220  straight
 1890           pata-pata  220  straight
-1920           pata-pata  220  straight
+1920           pata-pata  220  straight  life
 
 # formation at 2010
 2010           pata-pata  140  sine
