@@ -80,6 +80,8 @@ set(SOURCES
     src/systems/Collecting/Collecting.hpp
     src/systems/Collisions/Collisions.cpp
     src/systems/Collisions/Collisions.hpp
+    src/systems/ContactHits/ContactHits.cpp
+    src/systems/ContactHits/ContactHits.hpp
     src/systems/Flight/Flight.cpp
     src/systems/Looting/Looting.cpp
     src/systems/Looting/Looting.hpp
@@ -90,6 +92,8 @@ set(SOURCES
     src/systems/ForceControl/ForceControl.hpp
     src/systems/Scrolling/Scrolling.cpp
     src/systems/Scrolling/Scrolling.hpp
+    src/systems/Shielding/Shielding.cpp
+    src/systems/Shielding/Shielding.hpp
     src/systems/Shooting/Shooting.cpp
     src/systems/Shooting/Shooting.hpp
     src/systems/StageSpawner/StageSpawner.cpp

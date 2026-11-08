@@ -24,6 +24,8 @@ namespace RType::Systems {
                    Shooting,
                    Flight,
                    ForceControl,
+                   Shielding,
+                   ContactHits,
                    Collisions,
                    Looting,
                    Collecting,
