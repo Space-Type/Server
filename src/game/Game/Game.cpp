@@ -18,7 +18,7 @@ namespace {
     // Every player is pinged this often, and answers with a Ping (or any other packet)
     constexpr auto PING_INTERVAL = std::chrono::seconds(1);
     // A player silent this long has crashed or lost its connection
-    constexpr auto PLAYER_TIMEOUT = std::chrono::seconds(5);
+    constexpr auto PLAYER_TIMEOUT = std::chrono::seconds(15);
 }
 
 
