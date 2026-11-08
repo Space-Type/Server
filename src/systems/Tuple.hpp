@@ -24,7 +24,9 @@ namespace RType::Systems {
                    Shooting,
                    Flight,
                    Collisions,
+                   Swinging,
                    Attachment,
+                   PhaseChange,
                    BossDefeat,
                    StageTransition>
     >;

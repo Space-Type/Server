@@ -28,6 +28,8 @@ namespace RType::Components {
                                       StopAt,
                                       Attached,
                                       RandomShots,
-                                      AimedBursts>
+                                      AimedBursts,
+                                      Swing,
+                                      Enrage>
     >;
 }
