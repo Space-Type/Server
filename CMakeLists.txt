@@ -38,9 +38,11 @@ set(SOURCES
     src/components/Enrage/Enrage.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/LevelState/LevelState.hpp
+    src/components/Loot/Loot.hpp
     src/components/InputBuffer/InputBuffer.hpp
     src/components/NetworkID/NetworkID.cpp
     src/components/NetworkID/NetworkID.hpp
+    src/components/Pickup/Pickup.hpp
     src/components/Player/Player.cpp
     src/components/Player/Player.hpp
     src/components/RandomShots/RandomShots.hpp
@@ -69,9 +71,13 @@ set(SOURCES
     src/systems/BufferedInput/BufferedInput.cpp
     src/systems/BurstFire/BurstFire.cpp
     src/systems/BurstFire/BurstFire.hpp
+    src/systems/Collecting/Collecting.cpp
+    src/systems/Collecting/Collecting.hpp
     src/systems/Collisions/Collisions.cpp
     src/systems/Collisions/Collisions.hpp
     src/systems/Flight/Flight.cpp
+    src/systems/Looting/Looting.cpp
+    src/systems/Looting/Looting.hpp
     src/systems/PhaseChange/PhaseChange.cpp
     src/systems/PhaseChange/PhaseChange.hpp
     src/systems/Flight/Flight.hpp

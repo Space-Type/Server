@@ -24,6 +24,8 @@ namespace RType::Systems {
                    Shooting,
                    Flight,
                    Collisions,
+                   Looting,
+                   Collecting,
                    Swinging,
                    Attachment,
                    PhaseChange,

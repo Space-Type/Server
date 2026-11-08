@@ -29,6 +29,8 @@ namespace RType::Game {
                                         Components::AimedBursts,
                                         Components::Swing,
                                         Components::Enrage,
+                                        Components::Loot,
+                                        Components::Pickup,
                                         Protecs::Components::BossPhase>;
 
     /**
@@ -61,8 +63,11 @@ namespace RType::Game {
     struct Requests {
         std::vector<SpawnRequest> spawns;
         std::vector<Wrecks::ECS::Entity> destroys;
+        std::vector<Wrecks::ECS::Entity> kills;  // destroyed by a player (not gone off screen): they may drop their Loot
 
         void destroy(Wrecks::ECS::Entity entity);
+        void kill(Wrecks::ECS::Entity entity);
+        [[ nodiscard ]] bool killed(Wrecks::ECS::Entity entity) const noexcept;
         [[ nodiscard ]] bool destroying(Wrecks::ECS::Entity entity) const noexcept;
     };
 }

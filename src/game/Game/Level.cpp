@@ -12,6 +12,8 @@
 #include <rtype/utils.hpp>
 #include <algorithm>
 #include <array>
+#include <format>
+#include <string>
 #include <type_traits>
 #include <variant>
 
@@ -36,6 +38,7 @@ void RType::Game::Game::applyRequests()
     for (const auto& request : m_Requests.spawns)
         spawnBody(request);
     m_Requests.destroys.clear();
+    m_Requests.kills.clear();
     m_Requests.spawns.clear();
 }
 
@@ -136,6 +139,7 @@ void RType::Game::Game::endLevel()
     }
     m_Requests.spawns.clear();
     m_Requests.destroys.clear();
+    m_Requests.kills.clear();
     m_Level.reset();
     logger.info() << "level ended (no player left)" << std::endl;
 }
@@ -145,7 +149,9 @@ void RType::Game::Game::setDevOptions(const DevOptions& dev)
     m_Dev = dev;
     m_Engine.get<Systems::Collisions>().setInvincible(dev.god);
     m_Engine.get<Systems::Scrolling>().setSpeed(dev.speed);
+    m_Engine.get<Systems::Looting>().setChance(dev.dropRate);
     if (dev.any())
         logger.warning() << "developer options on: god " << (dev.god ? "on" : "off") << ", speed x" << dev.speed
-                         << ", start at " << dev.start << " (never on a real server)" << std::endl;
+                         << ", start at " << dev.start << ", drop rate " << (dev.dropRate ? std::format("{}", *dev.dropRate) : "per stage file")
+                         << " (never on a real server)" << std::endl;
 }

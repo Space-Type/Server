@@ -8,6 +8,7 @@
 
 #include "Waves.hpp"
 #include "../Blueprints/Blueprints.hpp"
+#include "../Rules.hpp"
 #include <rtype/utils.hpp>
 #include <protecs/common.hpp>
 #include <algorithm>
@@ -48,6 +49,25 @@ namespace {
             return std::nullopt;
         return value;
     }
+
+    // "none", "life" (always) or "life:<chance>" (0 to 1)
+    std::optional<RType::Components::Loot> parseLoot(const std::string& text) noexcept
+    {
+        using RType::Components::Item;
+
+        if (text == "none")
+            return RType::Components::Loot{ .item = Item::Life, .chance = 0.0F };
+        if (text == "life")
+            return RType::Components::Loot{ .item = Item::Life, .chance = 1.0F };
+        if (!text.starts_with("life:"))
+            return std::nullopt;
+
+        auto chance = parseNumber<float>(text.substr(5));
+
+        if (!chance || !(*chance >= 0.0F && *chance <= 1.0F))
+            return std::nullopt;
+        return RType::Components::Loot{ .item = Item::Life, .chance = *chance };
+    }
 }
 
 
@@ -59,7 +79,7 @@ auto RType::Game::parseStage(std::string_view text, std::vector<std::string>& er
 
     for (std::size_t number = 1; std::getline(lines, line); ++number) {
         std::istringstream words(line);
-        std::string first, second, third, pattern, extra;
+        std::string first, second, third, pattern, column, extra;
 
         if (!(words >> first) || first.starts_with('#'))
             continue;
@@ -86,13 +106,16 @@ auto RType::Game::parseStage(std::string_view text, std::vector<std::string>& er
         bool isRandom = tooMany && third == "random";
         auto height = tooMany && !isRandom ? parseNumber<float>(third) : std::nullopt;
         auto movement = (words >> pattern) ? parsePattern(pattern) : std::nullopt;
+        bool hasLoot = (words >> column) && !column.starts_with('#');
+        auto loot = hasLoot ? parseLoot(column) : Components::Loot{ .item = Components::Item::Life, .chance = Rules::LIFE_DROP_CHANCE };
 
-        if (!value || !entity || (!height && !isRandom) || !movement || (words >> extra && !extra.starts_with('#'))
+        if (!value || !entity || (!height && !isRandom) || !movement || !loot || (hasLoot && words >> extra && !extra.starts_with('#'))
             || (height && (*height < 0.0F || *height > Protecs::MAP_MAX_Y))) {
-            errors.push_back("line " + std::to_string(number) + ": expected \"progression type y|random movement\", got \"" + line + "\"");
+            errors.push_back("line " + std::to_string(number) + ": expected \"progression type y|random movement [loot]\", got \"" + line + "\"");
             continue;
         }
-        stage.waves.push_back({ .progression = *value, .type = *entity, .y = height.value_or(0.0F), .randomY = isRandom, .pattern = *movement });
+        stage.waves.push_back({ .progression = *value, .type = *entity, .y = height.value_or(0.0F), .randomY = isRandom, .pattern = *movement,
+                                .loot = *loot });
     }
     std::ranges::stable_sort(stage.waves, {}, &Wave::progression);
     return stage;
