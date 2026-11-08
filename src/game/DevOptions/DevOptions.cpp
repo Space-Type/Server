@@ -47,6 +47,10 @@ auto RType::Game::parseCommandLine(int argc, const char* const* argv) -> Command
                 throw std::invalid_argument("--speed must be above 0 and at most 50");
         } else if (option == "--start") {
             line.dev.start = parseValue<std::uint32_t>(option, argc, argv, i);
+        } else if (option == "--drop-rate") {
+            line.dev.dropRate = parseValue<float>(option, argc, argv, i);
+            if (!(*line.dev.dropRate >= 0.0F && *line.dev.dropRate <= 1.0F))
+                throw std::invalid_argument("--drop-rate must be from 0 to 1");
         } else {
             throw std::invalid_argument("unknown option: " + std::string(option));
         }
