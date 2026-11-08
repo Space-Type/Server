@@ -32,8 +32,13 @@ void RType::Systems::StageSpawner::operator()(Wrecks::ECS::Entity entity, Wrecks
     const Game::Stage& stage = (*m_Stages)[level.stage - 1];
 
     // Every wave the level reached appears on the right
-    for (; state.nextWave < stage.waves.size() && stage.waves[state.nextWave].progression <= level.progression; ++state.nextWave)
-        m_Requests->spawns.push_back(Game::Blueprints::enemy(stage.waves[state.nextWave], m_Random.between(Rules::ENEMY_SHOT_MIN, Rules::ENEMY_SHOT_MAX)));
+    for (; state.nextWave < stage.waves.size() && stage.waves[state.nextWave].progression <= level.progression; ++state.nextWave) {
+        Game::Wave wave = stage.waves[state.nextWave];
+
+        if (wave.randomY)
+            wave.y = m_Random.between(Rules::RANDOM_Y_MIN, Rules::RANDOM_Y_MAX);
+        m_Requests->spawns.push_back(Game::Blueprints::enemy(wave, m_Random.between(Rules::ENEMY_SHOT_MIN, Rules::ENEMY_SHOT_MAX)));
+    }
 
     if (stage.length == 0 || level.progression < stage.length)
         return;

@@ -24,6 +24,7 @@ namespace RType::Game {
         std::uint32_t progression;  // background pixels (Level::progression)
         Protecs::Networking::Packets::EntityCreate::EntityType type;
         float y;                    // world units, top of the enemy
+        bool randomY = false;       // `random` in the file: y is drawn when the enemy appears
         Components::Pattern pattern;
     };
 
@@ -41,10 +42,13 @@ namespace RType::Game {
      *     length 3797
      *     boss   dobkeratops
      *
-     *     # progression  type       y    movement
-     *     600            pata-pata  120  sine
+     *     # progression  type       y       movement
+     *     600            pata-pata  120     sine
+     *     660            pata-pata  random  straight
      *
-     * Types: pata-pata. Movements: straight, sine. Bosses: see
+     * y is `random` for a height drawn when the enemy appears
+     * (Rules::RANDOM_Y_MIN to RANDOM_Y_MAX), different in every
+     * game. Types: pata-pata. Movements: straight, sine. Bosses: see
      * Blueprints::isBoss. Empty lines and lines starting with
      * '#' are skipped. An invalid line is skipped too, and
      * described in `errors` (with its number): a broken file
