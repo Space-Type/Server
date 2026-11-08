@@ -138,7 +138,8 @@ void RType::Systems::Collisions::hitPlayer(Wrecks::ECS::Entity player)
 /**
  * Takes `amount` hit points from an enemy (one without
  * Health dies at the first hit). Killed: it is destroyed
- * with its Health at 0, and true is returned.
+ * with its Health at 0 (as a kill: it may drop its Loot),
+ * and true is returned.
  */
 bool RType::Systems::Collisions::damage(Wrecks::ECS::Entity enemy, std::uint8_t amount)
 {
@@ -151,6 +152,6 @@ bool RType::Systems::Collisions::damage(Wrecks::ECS::Entity enemy, std::uint8_t 
         if (health.hp > 0)
             return false;
     }
-    m_Requests->destroy(enemy);
+    m_Requests->kill(enemy);
     return true;
 }

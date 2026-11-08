@@ -36,6 +36,7 @@ void RType::Game::Game::applyRequests()
     for (const auto& request : m_Requests.spawns)
         spawnBody(request);
     m_Requests.destroys.clear();
+    m_Requests.kills.clear();
     m_Requests.spawns.clear();
 }
 
@@ -136,6 +137,7 @@ void RType::Game::Game::endLevel()
     }
     m_Requests.spawns.clear();
     m_Requests.destroys.clear();
+    m_Requests.kills.clear();
     m_Level.reset();
     logger.info() << "level ended (no player left)" << std::endl;
 }
