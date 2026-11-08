@@ -36,6 +36,7 @@ RType::Game::Game::Game() noexcept
     , m_IncomingEvents()
     , m_OutgoingEvents()
     , m_PullEvents()
+    , m_MaxPlayers(DEFAULT_MAX_PLAYERS)
     , m_Requests()
     , m_Level()
     , m_Stages(loadStages())
@@ -103,17 +104,17 @@ bool RType::Game::Game::pushEvent(const Protecs::Networking::Address& sender, Pa
             return false;
     }
 
-auto playerIt = m_Players.find(sender);
-if (playerIt == m_Players.end()) {
-    logger.warning() << "rejected request from " << sender << " (not a player)" << std::endl;
-    return false;
-}
+    auto playerIt = m_Players.find(sender);
+    if (playerIt == m_Players.end()) {
+        logger.warning() << "rejected request from " << sender << " (not a player)" << std::endl;
+        return false;
+    }
 
-auto& player = m_Engine.get<Components::Player>()[playerIt->second];
+    auto& player = m_Engine.get<Components::Player>()[playerIt->second];
 
-player.lastSeen = std::chrono::steady_clock::now();
-m_IncomingEvents.emplace_back(sender, std::move(data));
-return true;
+    player.lastSeen = std::chrono::steady_clock::now();
+    m_IncomingEvents.emplace_back(sender, std::move(data));
+    return true;
 }
 
 /**
@@ -144,6 +145,12 @@ bool RType::Game::Game::registerPlayer(const Protecs::Networking::Address& addre
     auto playerIt = m_Players.find(address);
     if (playerIt != m_Players.end()) {
         logger.warning() << "rejected request to join from " << address << " (already a player)" << std::endl;
+        return false;
+    }
+
+    if (m_Players.size() >= m_MaxPlayers) {
+        logger.warning() << "rejected request to join from " << address << " (max players reached)" << std::endl;
+        m_OutgoingEvents.emplace_back(address, Packets::PlayerLeave());
         return false;
     }
 
