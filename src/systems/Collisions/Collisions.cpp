@@ -57,7 +57,7 @@ void RType::Systems::Collisions::hitWithShot(Wrecks::ECS::Entity shot)
     for (auto [other, unused] : engine.get<Components::Body>()) {
         const auto& otherBody = engine.get<Components::Body>()[other];
         const auto& otherPosition = engine.get<Protecs::Components::Transform>()[other].position;
-        bool target = Rules::isEnemy(otherBody.type) || (beam && otherBody.type == Rules::EntityCreate::ENEMY_MISSILE);
+        bool target = engine.hasComponent<Components::Enemy>(other) || (beam && otherBody.type == Rules::EntityCreate::ENEMY_MISSILE);
 
         if (target && !m_Requests->destroying(other)
             && Rules::overlap(position + body.offset, body.size, otherPosition + otherBody.offset, otherBody.size))
@@ -72,24 +72,16 @@ void RType::Systems::Collisions::hitWithShot(Wrecks::ECS::Entity shot)
             m_Requests->destroy(other);
             continue;
         }
-        if (otherType == Rules::EntityCreate::ENEMY_DOBKERATOPS) {  // the boss body absorbs shots, only its core takes damage
+        if (engine.hasComponent<Components::Armored>(other)) {  // e.g. a boss body around its weak point
             m_Requests->destroy(shot);
             return;
         }
-
-        bool hasHealth = engine.hasComponent<Protecs::Components::Health>(other);
-        std::uint16_t hp = hasHealth ? engine.get<Protecs::Components::Health>()[other].hp : 1;
-
-        if (hp > body.damage) {
-            if (hasHealth)
-                engine.get<Protecs::Components::Health>()[other].hp = static_cast<std::uint16_t>(hp - body.damage);
+        if (!damage(other, body.damage)) {
             m_Requests->destroy(shot);
             return;
         }
-        m_Requests->destroy(other);
         if (engine.hasComponent<Protecs::Components::PlayerStats>(body.owner))
-            engine.get<Protecs::Components::PlayerStats>()[body.owner].score
-                += otherType == Rules::EntityCreate::ENEMY_DOBKERATOPS_CORE ? Rules::BOSS_SCORE : Rules::ENEMY_SCORE;
+            engine.get<Protecs::Components::PlayerStats>()[body.owner].score += engine.get<Components::Enemy>()[other].reward;
         if (!beam) {
             m_Requests->destroy(shot);
             return;
@@ -115,7 +107,7 @@ void RType::Systems::Collisions::hitPlayer(Wrecks::ECS::Entity player)
 
     for (auto [other, unused] : engine.get<Components::Body>()) {
         const auto& otherBody = engine.get<Components::Body>()[other];
-        bool hurts = Rules::isEnemy(otherBody.type) || otherBody.type == Rules::EntityCreate::ENEMY_MISSILE;
+        bool hurts = engine.hasComponent<Components::Enemy>(other) || otherBody.type == Rules::EntityCreate::ENEMY_MISSILE;
 
         if (!hurts || m_Requests->destroying(other)
             || !Rules::overlap(transform.position + body.offset, body.size,
@@ -124,7 +116,11 @@ void RType::Systems::Collisions::hitPlayer(Wrecks::ECS::Entity player)
 
         auto& stats = engine.get<Protecs::Components::PlayerStats>()[player];
 
-        m_Requests->destroy(other);
+        // A missile goes away; an enemy takes 1 damage (an armored part none)
+        if (!engine.hasComponent<Components::Enemy>(other))
+            m_Requests->destroy(other);
+        else if (!engine.hasComponent<Components::Armored>(other))
+            damage(other, 1);
         stats.lives = stats.lives > 0 ? stats.lives - 1 : 0;
         if (stats.lives == 0) {
             logger.info() << "player \"" << engine.get<Components::Player>()[player].name << "\" is out ("
@@ -137,4 +133,24 @@ void RType::Systems::Collisions::hitPlayer(Wrecks::ECS::Entity player)
         engine.get<Protecs::Components::Velocity>()[player] = {};
         return;
     }
+}
+
+/**
+ * Takes `amount` hit points from an enemy (one without
+ * Health dies at the first hit). Killed: it is destroyed
+ * with its Health at 0, and true is returned.
+ */
+bool RType::Systems::Collisions::damage(Wrecks::ECS::Entity enemy, std::uint8_t amount)
+{
+    auto& engine = *reinterpret_cast<Game::Engine*>(m_Engine);
+
+    if (engine.hasComponent<Protecs::Components::Health>(enemy)) {
+        auto& health = engine.get<Protecs::Components::Health>()[enemy];
+
+        health.hp = health.hp > amount ? static_cast<std::uint16_t>(health.hp - amount) : 0;
+        if (health.hp > 0)
+            return false;
+    }
+    m_Requests->destroy(enemy);
+    return true;
 }

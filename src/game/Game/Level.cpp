@@ -12,6 +12,8 @@
 #include <rtype/utils.hpp>
 #include <algorithm>
 #include <array>
+#include <type_traits>
+#include <variant>
 
 
 namespace Packets = Protecs::Networking::Packets;
@@ -37,23 +39,38 @@ void RType::Game::Game::applyRequests()
     m_Requests.spawns.clear();
 }
 
-void RType::Game::Game::spawnBody(const SpawnRequest& request)
+/**
+ * Creates the entity of a request, then its parts: a part
+ * is placed from its parent's position and Attached to it.
+ */
+void RType::Game::Game::spawnBody(const SpawnRequest& request, std::optional<Wrecks::ECS::Entity> parent)
 {
     auto entity = m_Engine.createEntity();
     auto networkId = Components::NetworkID::fromEntity(entity);
+    Protecs::Utils::Vec2D<float> position = request.position;
 
+    if (parent)
+        position += m_Engine.get<Protecs::Components::Transform>()[*parent].position;
     m_Engine.addComponent(entity, Components::NetworkID{ networkId });
     m_Engine.addComponent(entity, Components::Body{
         .type = request.type, .size = request.size, .offset = request.offset, .velocity = request.velocity,
         .owner = request.owner, .cooldown = request.cooldown, .damage = request.damage,
-        .pattern = request.pattern, .baseY = request.position.y, .stopX = request.stopX,
+        .pattern = request.pattern, .baseY = position.y,
     });
-    if (request.boss)
-        m_Engine.addComponent(entity, Components::Boss{});
+    if (parent)
+        m_Engine.addComponent(entity, Components::Attached{ .parent = *parent, .offset = request.position });
     broadcastPacket(Packets::EntityCreate{ .simulationTick = m_SimulationTick, .id = networkId.id, .type = request.type });
-    addSharedComponent(entity, Protecs::Components::Transform{ .position = request.position, .rotation = 0.0F, .scale = request.scale });
-    if (request.health > 0)
-        addSharedComponent(entity, Protecs::Components::Health{ .hp = request.health, .max = request.health });
+    addSharedComponent(entity, Protecs::Components::Transform{ .position = position, .rotation = 0.0F, .scale = request.scale });
+    for (const auto& component : request.components) {
+        std::visit([&](const auto& value) {
+            if constexpr (std::is_same_v<std::decay_t<decltype(value)>, Protecs::Components::Health>)
+                addSharedComponent(entity, Protecs::Components::Health{ value });
+            else
+                m_Engine.addComponent(entity, std::decay_t<decltype(value)>{ value });
+        }, component);
+    }
+    for (const auto& part : request.parts)
+        spawnBody(part, entity);
 }
 
 /**
@@ -78,7 +95,7 @@ void RType::Game::Game::initPlayerBody(Wrecks::ECS::Entity player)
 /**
  * The level starts with the first player: its entity holds
  * the stage and its progression (shared with the clients),
- * and the stage systems (Stage1, ...) run on it.
+ * and the stage systems (Scrolling, StageSpawner) run on it.
  */
 void RType::Game::Game::startLevel()
 {
@@ -88,12 +105,11 @@ void RType::Game::Game::startLevel()
     m_Level = level;
     m_Engine.addComponent(level, Components::NetworkID{ networkId });
     // --start: the waves before the starting progression are skipped, not all spawned at once
-    auto firstWave = std::ranges::lower_bound(m_Stage1Waves, m_Dev.start, {}, &Wave::progression);
+    std::size_t firstWave = 0;
 
-    m_Engine.addComponent(level, Components::LevelState{
-        .distance = static_cast<float>(m_Dev.start),
-        .nextWave = static_cast<std::size_t>(firstWave - m_Stage1Waves.begin()),
-    });
+    if (!m_Stages.empty())
+        firstWave = static_cast<std::size_t>(std::ranges::lower_bound(m_Stages[0].waves, m_Dev.start, {}, &Wave::progression) - m_Stages[0].waves.begin());
+    m_Engine.addComponent(level, Components::LevelState{ .distance = static_cast<float>(m_Dev.start), .nextWave = firstWave });
     broadcastPacket(Packets::EntityCreate{ .simulationTick = m_SimulationTick, .id = networkId.id, .type = Packets::EntityCreate::GENERIC });
     addSharedComponent(level, Protecs::Components::Level{ .progression = m_Dev.start, .stage = 1 });
     logger.info() << "level started" << std::endl;
@@ -125,7 +141,7 @@ void RType::Game::Game::setDevOptions(const DevOptions& dev)
 {
     m_Dev = dev;
     m_Engine.get<Systems::Collisions>().setInvincible(dev.god);
-    m_Engine.get<Systems::Stage1>().setSpeed(dev.speed);
+    m_Engine.get<Systems::Scrolling>().setSpeed(dev.speed);
     if (dev.any())
         logger.warning() << "developer options on: god " << (dev.god ? "on" : "off") << ", speed x" << dev.speed
                          << ", start at " << dev.start << " (never on a real server)" << std::endl;

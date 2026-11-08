@@ -45,6 +45,8 @@ set(SOURCES
     src/components/RandomShots/RandomShots.hpp
     src/components/StopAt/StopAt.hpp
     src/components/Manager.hpp
+    src/game/Blueprints/Blueprints.cpp
+    src/game/Blueprints/Blueprints.hpp
     src/game/DevOptions/DevOptions.cpp
     src/game/DevOptions/DevOptions.hpp
     src/game/Game/Game.cpp
@@ -58,17 +60,23 @@ set(SOURCES
     src/game/Server/Server.cpp
     src/game/Server/Server.hpp
     src/game/Engine.hpp
+    src/systems/Attachment/Attachment.cpp
+    src/systems/Attachment/Attachment.hpp
+    src/systems/BossDefeat/BossDefeat.cpp
+    src/systems/BossDefeat/BossDefeat.hpp
     src/systems/BufferedInput/BufferedInput.cpp
+    src/systems/BurstFire/BurstFire.cpp
+    src/systems/BurstFire/BurstFire.hpp
     src/systems/Collisions/Collisions.cpp
     src/systems/Collisions/Collisions.hpp
-    src/systems/Dobkeratops/Dobkeratops.cpp
-    src/systems/Dobkeratops/Dobkeratops.hpp
     src/systems/Flight/Flight.cpp
     src/systems/Flight/Flight.hpp
+    src/systems/Scrolling/Scrolling.cpp
+    src/systems/Scrolling/Scrolling.hpp
     src/systems/Shooting/Shooting.cpp
     src/systems/Shooting/Shooting.hpp
-    src/systems/Stage1/Stage1.cpp
-    src/systems/Stage1/Stage1.hpp
+    src/systems/StageSpawner/StageSpawner.cpp
+    src/systems/StageSpawner/StageSpawner.hpp
     src/systems/BufferedInput/BufferedInput.hpp
     src/systems/Tuple.hpp
     src/utils/Logger/Logger.cpp

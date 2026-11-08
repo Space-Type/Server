@@ -53,5 +53,6 @@ namespace RType::Systems {
         private:
             void hitWithShot(Wrecks::ECS::Entity shot);
             void hitPlayer(Wrecks::ECS::Entity player);
+            bool damage(Wrecks::ECS::Entity enemy, std::uint8_t amount);
     };
 }

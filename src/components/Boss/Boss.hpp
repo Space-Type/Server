@@ -8,14 +8,11 @@
 
 #pragma once
 
-#include <cstdint>
-
-
 namespace RType::Components {
-    // Server-only state of a boss body: its bursts of aimed shots
-    struct Boss {
-        float burstTimer = 1.0F;      // seconds before the next burst
-        float shotTimer = 0.0F;       // seconds before the next shot of the current burst
-        std::uint8_t shotsLeft = 0;   // shots left in the current burst
-    };
+    /**
+     * The weak point of a boss: when it is killed (its Health
+     * drops to 0), the stage is cleared. Its other parts are
+     * Attached to it.
+     */
+    struct Boss {};
 }

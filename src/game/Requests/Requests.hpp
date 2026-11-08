@@ -8,30 +8,43 @@
 
 #pragma once
 
-#include "../../components/Body/Body.hpp"
+#include <rtype/components.hpp>
 #include <protecs/common.hpp>
+#include <protecs/components.hpp>
 #include <protecs/networking.hpp>
 #include <wrecks/ecs.hpp>
 #include <cstdint>
+#include <variant>
 #include <vector>
 
 
 namespace RType::Game {
-    // An enemy or a missile a system wants to create
+    // Components a spawned entity may get besides its Body and Transform (Health is shared with the clients)
+    using ExtraComponent = std::variant<Protecs::Components::Health,
+                                        Components::Enemy,
+                                        Components::Armored,
+                                        Components::Boss,
+                                        Components::StopAt,
+                                        Components::RandomShots,
+                                        Components::AimedBursts>;
+
+    /**
+     * An entity a system wants to create: its Body, its
+     * Transform, its other components, and its parts.
+     */
     struct SpawnRequest {
         Protecs::Networking::Packets::EntityCreate::EntityType type;
-        Protecs::Utils::Vec2D<float> position;
+        Protecs::Utils::Vec2D<float> position;  // a part: from its parent's position
         Protecs::Utils::Vec2D<float> size;
-        Protecs::Utils::Vec2D<float> velocity;
+        Protecs::Utils::Vec2D<float> velocity = {};
         Wrecks::ECS::Entity owner = 0;  // player who shot a missile (score)
         float cooldown = 0.0F;          // seconds before its first shot
         std::uint8_t damage = 0;        // missiles and beams
-        std::uint16_t health = 0;       // enemies: hit points (0: no Health component)
         Components::Pattern pattern = Components::Pattern::Straight;
         Protecs::Utils::Vec2D<float> offset = {};  // hitbox position from the entity position
-        float stopX = 0.0F;
         float scale = 1.0F;             // Transform.scale: clients draw the sprite that much bigger
-        bool boss = false;              // gets a Boss component
+        std::vector<ExtraComponent> components = {};
+        std::vector<SpawnRequest> parts = {};  // created after it, Attached to it
     };
 
     /**

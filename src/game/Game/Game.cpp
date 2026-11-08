@@ -28,20 +28,23 @@ RType::Game::Game::Game() noexcept
     , m_PullEvents()
     , m_Requests()
     , m_Level()
-    , m_Stage1Waves(loadWaves("stage-1.waves"))
+    , m_Stages(loadStages())
     , m_Dev()
 {
     auto seed = static_cast<std::uint32_t>(std::chrono::steady_clock::now().time_since_epoch().count());
 
     m_Engine.get<Systems::BufferedInput>().setSimulationTick(m_SimulationTick);
-    m_Engine.get<Systems::Stage1>().setRequests(m_Requests);
-    m_Engine.get<Systems::Stage1>().seed(seed);
-    m_Engine.get<Systems::Stage1>().setWaves(m_Stage1Waves);
+    m_Engine.get<Systems::Scrolling>().setStages(m_Stages);
+    m_Engine.get<Systems::StageSpawner>().setRequests(m_Requests);
+    m_Engine.get<Systems::StageSpawner>().seed(seed);
+    m_Engine.get<Systems::StageSpawner>().setStages(m_Stages);
+    m_Engine.get<Systems::BurstFire>().setRequests(m_Requests);
     m_Engine.get<Systems::Shooting>().setRequests(m_Requests);
     m_Engine.get<Systems::Shooting>().seed(seed ^ 0x9E3779B9U);
     m_Engine.get<Systems::Flight>().setRequests(m_Requests);
     m_Engine.get<Systems::Collisions>().setRequests(m_Requests);
-    m_Engine.get<Systems::Dobkeratops>().setRequests(m_Requests);
+    m_Engine.get<Systems::Attachment>().setRequests(m_Requests);
+    m_Engine.get<Systems::BossDefeat>().setRequests(m_Requests);
 }
 
 /**

@@ -40,6 +40,5 @@ namespace RType::Components {
         Pattern pattern = Pattern::Straight;
         float baseY = 0.0F;                          // height the wave goes around (Pattern::Sine)
         float age = 0.0F;                            // seconds since it appeared
-        float stopX = 0.0F;                          // stops flying left once there (0: never), e.g. a boss
     };
 }

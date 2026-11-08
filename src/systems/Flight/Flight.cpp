@@ -33,8 +33,8 @@ void RType::Systems::Flight::operator()(Wrecks::ECS::Entity entity, Wrecks::Delt
 
     body.age += seconds;
     position += body.velocity * seconds;
-    if (body.stopX > 0.0F && position.x <= body.stopX) {
-        position.x = body.stopX;
+    if (engine.hasComponent<Components::StopAt>(entity) && position.x <= engine.get<Components::StopAt>()[entity].x) {
+        position.x = engine.get<Components::StopAt>()[entity].x;
         body.velocity = {};
     }
     if (body.pattern == Components::Pattern::Sine)

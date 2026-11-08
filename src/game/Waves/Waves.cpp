@@ -7,6 +7,7 @@
 */
 
 #include "Waves.hpp"
+#include "../Blueprints/Blueprints.hpp"
 #include <rtype/utils.hpp>
 #include <protecs/common.hpp>
 #include <algorithm>
@@ -50,22 +51,39 @@ namespace {
 }
 
 
-auto RType::Game::parseWaves(std::string_view text, std::vector<std::string>& errors) -> std::vector<Wave>
+auto RType::Game::parseStage(std::string_view text, std::vector<std::string>& errors) -> Stage
 {
-    std::vector<Wave> waves;
+    Stage stage;
     std::istringstream lines{ std::string(text) };
     std::string line;
 
     for (std::size_t number = 1; std::getline(lines, line); ++number) {
         std::istringstream words(line);
-        std::string progression, type, y, pattern, extra;
+        std::string first, second, third, pattern, extra;
 
-        if (!(words >> progression) || progression.starts_with('#'))
+        if (!(words >> first) || first.starts_with('#'))
             continue;
 
-        auto value = parseNumber<std::uint32_t>(progression);
-        auto entity = (words >> type) ? parseType(type) : std::nullopt;
-        auto height = (words >> y) ? parseNumber<float>(y) : std::nullopt;
+        bool more = static_cast<bool>(words >> second);
+        bool tooMany = static_cast<bool>(words >> third) && !third.starts_with('#');
+
+        if (first == "length" || first == "boss") {
+            auto length = first == "length" && more ? parseNumber<std::uint32_t>(second) : std::nullopt;
+
+            if (!more || tooMany || (first == "length" && !length) || (first == "boss" && !Blueprints::isBoss(second))) {
+                errors.push_back("line " + std::to_string(number) + ": expected \"length <n>\" or \"boss <name>\", got \"" + line + "\"");
+                continue;
+            }
+            if (length)
+                stage.length = *length;
+            else
+                stage.boss = second;
+            continue;
+        }
+
+        auto value = parseNumber<std::uint32_t>(first);
+        auto entity = more ? parseType(second) : std::nullopt;
+        auto height = tooMany ? parseNumber<float>(third) : std::nullopt;
         auto movement = (words >> pattern) ? parsePattern(pattern) : std::nullopt;
 
         if (!value || !entity || !height || !movement || (words >> extra && !extra.starts_with('#'))
@@ -73,13 +91,13 @@ auto RType::Game::parseWaves(std::string_view text, std::vector<std::string>& er
             errors.push_back("line " + std::to_string(number) + ": expected \"progression type y movement\", got \"" + line + "\"");
             continue;
         }
-        waves.push_back({ .progression = *value, .type = *entity, .y = *height, .pattern = *movement });
+        stage.waves.push_back({ .progression = *value, .type = *entity, .y = *height, .pattern = *movement });
     }
-    std::ranges::stable_sort(waves, {}, &Wave::progression);
-    return waves;
+    std::ranges::stable_sort(stage.waves, {}, &Wave::progression);
+    return stage;
 }
 
-auto RType::Game::loadWaves(const std::string& name) noexcept -> std::vector<Wave>
+auto RType::Game::loadStage(const std::string& name) noexcept -> std::optional<Stage>
 {
     try {
         std::error_code error;
@@ -94,23 +112,37 @@ auto RType::Game::loadWaves(const std::string& name) noexcept -> std::vector<Wav
                 continue;
             }
             if (std::filesystem::file_size(path, error) > WAVES_FILE_MAX) {
-                logger.error() << "stage file " << path << " is too big, no waves loaded" << std::endl;
-                return {};
+                logger.error() << "stage file " << path << " is too big, the stage is empty" << std::endl;
+                return Stage{};
             }
 
             std::ifstream file(path, std::ios::binary);
             std::string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
             std::vector<std::string> errors;
-            std::vector<Wave> waves = parseWaves(text, errors);
+            Stage stage = parseStage(text, errors);
 
             for (const auto& message : errors)
                 logger.warning() << path.filename().string() << ": " << message << std::endl;
-            logger.info() << "loaded " << waves.size() << " waves from " << path << std::endl;
-            return waves;
+            if (stage.length == 0)
+                logger.warning() << path.filename().string() << ": no length, the stage never ends" << std::endl;
+            logger.info() << "loaded " << stage.waves.size() << " waves from " << path
+                          << (stage.boss.empty() ? std::string() : ", boss " + stage.boss) << std::endl;
+            return stage;
         }
-        logger.error() << "stage file assets/stages/" << name << " not found, no waves loaded" << std::endl;
     } catch (const std::exception& err) {
         logger.error() << "cannot load stage file " << name << ": " << err.what() << std::endl;
+        return Stage{};
     }
-    return {};
+    return std::nullopt;
+}
+
+auto RType::Game::loadStages() noexcept -> std::vector<Stage>
+{
+    std::vector<Stage> stages;
+
+    for (int number = 1; auto stage = loadStage("stage-" + std::to_string(number) + ".waves"); ++number)
+        stages.push_back(std::move(*stage));
+    if (stages.empty())
+        logger.error() << "no stage file found (assets/stages/stage-1.waves), the level stays empty" << std::endl;
+    return stages;
 }

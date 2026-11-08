@@ -8,9 +8,12 @@
 
 #pragma once
 
+#include "../../../src/systems/Attachment/Attachment.hpp"
+#include "../../../src/systems/BossDefeat/BossDefeat.hpp"
 #include "../../../src/systems/BufferedInput/BufferedInput.hpp"
+#include "../../../src/systems/BurstFire/BurstFire.hpp"
 #include "../../../src/systems/Collisions/Collisions.hpp"
-#include "../../../src/systems/Dobkeratops/Dobkeratops.hpp"
 #include "../../../src/systems/Flight/Flight.hpp"
+#include "../../../src/systems/Scrolling/Scrolling.hpp"
 #include "../../../src/systems/Shooting/Shooting.hpp"
-#include "../../../src/systems/Stage1/Stage1.hpp"
+#include "../../../src/systems/StageSpawner/StageSpawner.hpp"

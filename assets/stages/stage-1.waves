@@ -1,6 +1,12 @@
 # Stage 1: enemies appear on the right when the level reaches their progression
-# (pixels of stage-1.png scrolled, 30 per second; the stage ends at 3797).
+# (pixels of stage-1.png scrolled, 30 per second).
 #
+# The scrolling stops when the end of stage-1.png (4224 px wide) reaches the
+# right edge of the screen (~427 px of background shown): 4224 - 427 = 3797.
+# The boss comes then.
+length 3797
+boss   dobkeratops
+
 # progression  type       y    movement
 
 # formation at 120

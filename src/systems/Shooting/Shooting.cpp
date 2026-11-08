@@ -33,7 +33,7 @@ void RType::Systems::Shooting::operator()(Wrecks::ECS::Entity entity, Wrecks::De
 
     if (body.type == EntityCreate::PLAYER)
         shootAsPlayer(entity, body, seconds);
-    else if (Rules::shootsRandomly(body.type) && body.cooldown <= 0.0F)
+    else if (engine.hasComponent<Components::RandomShots>(entity) && body.cooldown <= 0.0F)
         shootAsEnemy(entity, body);
 }
 
@@ -97,7 +97,9 @@ void RType::Systems::Shooting::shootAsEnemy(Wrecks::ECS::Entity entity, Componen
     auto& engine = *reinterpret_cast<Game::Engine*>(m_Engine);
     const auto& position = engine.get<Protecs::Components::Transform>()[entity].position;
 
-    body.cooldown = m_Random.between(Rules::ENEMY_SHOT_MIN, Rules::ENEMY_SHOT_MAX);
+    const auto& shots = engine.get<Components::RandomShots>()[entity];
+
+    body.cooldown = m_Random.between(shots.min, shots.max);
     m_Requests->spawns.push_back({
         .type = EntityCreate::ENEMY_MISSILE,
         .position = { position.x - Rules::ENEMY_MISSILE_SIZE.x, position.y + (body.size.y - Rules::ENEMY_MISSILE_SIZE.y) / 2.0F },
