@@ -53,6 +53,12 @@ set(SOURCES
 
 add_executable(r-type_server ${SOURCES})
 
+# windows.h (included by the Wrecks and Protecs networking headers) defines
+# ERROR (clashes with Logger::ERROR) and min / max macros (std::min, std::max)
+if (WIN32)
+    target_compile_definitions(r-type_server PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX NOGDI)
+endif()
+
 target_include_directories(r-type_server PUBLIC include
                                          PUBLIC lib/wrecks/include
                                          PUBLIC lib/protecs/include)
