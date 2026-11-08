@@ -15,6 +15,7 @@ static void run(const RType::Game::DevOptions& dev)
     auto server = RType::Game::Server::Builder()
         .setHost("0.0.0.0")
         .setPort(5432)
+        .setMaxPlayers(4)
         .setDevOptions(dev)
         .build();
 
