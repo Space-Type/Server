@@ -8,8 +8,11 @@
 # y is the top of the enemy (0 at the top of the screen), or random: a height
 # drawn when the enemy appears, different in every game.
 #
-# loot (optional) is what the enemy drops when a player kills it: life (always),
-# life:<chance> (0 to 1) or none. Without it, a life one time in ten.
+# Types: pata-pata (shoots, drops a life one time in ten), pow-armor (never
+# shoots, always drops a Force item: a Force, then levels 2 and 3).
+#
+# loot (optional) changes what the enemy drops when a player kills it: life or
+# force (always), life:<chance> or force:<chance> (0 to 1), or none.
 length 3797
 boss   dobkeratops
 
@@ -21,6 +24,9 @@ boss   dobkeratops
 180            pata-pata  80   sine
 210            pata-pata  80   sine
 240            pata-pata  80   sine      life
+
+# a Force early in the stage
+290            pow-armor  200  straight
 
 # formation at 330
 330            pata-pata  300  sine
@@ -66,6 +72,9 @@ boss   dobkeratops
 1380           pata-pata  190  sine
 1410           pata-pata  190  sine
 1440           pata-pata  190  sine
+
+# Force level 2
+1460           pow-armor  280  straight
 
 # formation at 1530
 1530           pata-pata  100  sine
@@ -115,6 +124,9 @@ boss   dobkeratops
 2550           pata-pata  250  sine
 2580           pata-pata  250  sine
 2610           pata-pata  250  sine
+
+# Force level 3
+2660           pow-armor  150  sine
 
 # formation at 2730
 2730           pata-pata  180  straight
