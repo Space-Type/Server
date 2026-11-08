@@ -1,0 +1,122 @@
+# Stage 2: the cave. Enemies appear on the right when the level reaches their
+# progression (pixels of stage-2.png scrolled, 30 per second).
+#
+# The scrolling stops when the end of stage-2.png (3072 px wide) reaches the
+# right edge of the screen (~427 px of background shown): 3072 - 427 = 2645.
+# The Gomander, lying on the cave floor, comes then.
+#
+# The ceiling and the floor of the cave take about 37 and 65 world units: an
+# enemy stays between y = 50 and 330 (y is its top), and one along a sine (40
+# up and down) between 120 and 260. No random height here: it could reach the
+# floor.
+#
+# Types: pata-pata (shoots, drops a life one time in ten), pow-armor (never
+# shoots, always drops a Force item). loot (optional): life or force (always),
+# life:<chance> or force:<chance> (0 to 1), or none.
+length 2645
+boss   gomander
+
+# progression  type       y    movement  loot
+
+# formation at 100, high
+100            pata-pata  120  sine
+130            pata-pata  120  sine
+160            pata-pata  120  sine
+190            pata-pata  120  sine
+220            pata-pata  120  sine
+
+# a Force for whoever lost theirs in stage 1
+260            pow-armor  200  straight
+
+# formation at 330, low
+330            pata-pata  260  sine
+360            pata-pata  260  sine
+390            pata-pata  260  sine
+420            pata-pata  260  sine
+450            pata-pata  260  sine      life
+
+# two rows at 520
+520            pata-pata  90   straight
+550            pata-pata  90   straight
+580            pata-pata  90   straight
+610            pata-pata  90   straight
+540            pata-pata  300  straight
+570            pata-pata  300  straight
+600            pata-pata  300  straight
+630            pata-pata  300  straight
+
+# formation at 700
+700            pata-pata  180  sine
+730            pata-pata  180  sine
+760            pata-pata  180  sine
+790            pata-pata  180  sine
+820            pata-pata  180  sine
+
+# two rows at 900
+900            pata-pata  150  straight
+930            pata-pata  150  straight
+960            pata-pata  150  straight
+990            pata-pata  150  straight
+960            pata-pata  260  straight
+990            pata-pata  260  straight
+1020           pata-pata  260  straight
+1050           pata-pata  260  straight
+
+# formation at 1100
+1100           pata-pata  120  sine
+1130           pata-pata  120  sine
+1160           pata-pata  120  sine
+1190           pata-pata  120  sine
+1220           pata-pata  120  sine
+
+# formation at 1300
+1300           pata-pata  260  sine
+1330           pata-pata  260  sine
+1360           pata-pata  260  sine
+1390           pata-pata  260  sine
+1420           pata-pata  260  sine
+
+# two rows at 1500
+1500           pata-pata  100  straight
+1530           pata-pata  100  straight
+1560           pata-pata  100  straight
+1590           pata-pata  100  straight
+1500           pata-pata  280  straight
+1530           pata-pata  280  straight
+1560           pata-pata  280  straight
+1590           pata-pata  280  straight
+
+# formation at 1700
+1700           pata-pata  190  sine
+1730           pata-pata  190  sine
+1760           pata-pata  190  sine
+1790           pata-pata  190  sine
+1820           pata-pata  190  sine
+1850           pata-pata  190  sine
+
+# formation at 1950
+1950           pata-pata  140  straight
+1980           pata-pata  140  straight
+2010           pata-pata  140  straight
+2040           pata-pata  140  straight
+
+# formation at 2050, before the boss
+2050           pata-pata  250  sine
+2080           pata-pata  250  sine
+2110           pata-pata  250  sine
+2140           pata-pata  250  sine
+2170           pata-pata  250  sine      life
+
+# formation at 2250
+2250           pata-pata  120  sine
+2280           pata-pata  120  sine
+2310           pata-pata  120  sine
+2340           pata-pata  120  sine
+2370           pata-pata  120  sine
+
+# formation at 2400
+2400           pata-pata  200  straight
+2430           pata-pata  200  straight
+2460           pata-pata  200  straight
+2490           pata-pata  200  straight
+2520           pata-pata  200  straight
