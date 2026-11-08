@@ -41,7 +41,9 @@ int main(int argc, char *argv[])
         run(line.dev);
     } catch (const std::exception& err) {
         std::cerr << err.what() << std::endl;
+        return 84;
     } catch (...) {
         std::cerr << "unknown error" << std::endl;
+        return 84;
     }
 }
