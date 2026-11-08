@@ -63,10 +63,13 @@ void RType::Game::Game::spawnBody(const SpawnRequest& request, std::optional<Wre
     addSharedComponent(entity, Protecs::Components::Transform{ .position = position, .rotation = 0.0F, .scale = request.scale });
     for (const auto& component : request.components) {
         std::visit([&](const auto& value) {
-            if constexpr (std::is_same_v<std::decay_t<decltype(value)>, Protecs::Components::Health>)
-                addSharedComponent(entity, Protecs::Components::Health{ value });
+            using Component = std::decay_t<decltype(value)>;
+
+            // Shared components go to the clients too
+            if constexpr (std::is_same_v<Component, Protecs::Components::Health> || std::is_same_v<Component, Protecs::Components::BossPhase>)
+                addSharedComponent(entity, Component{ value });
             else
-                m_Engine.addComponent(entity, std::decay_t<decltype(value)>{ value });
+                m_Engine.addComponent(entity, Component{ value });
         }, component);
     }
     for (const auto& part : request.parts)

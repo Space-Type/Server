@@ -26,7 +26,10 @@ namespace RType::Game {
                                         Components::Boss,
                                         Components::StopAt,
                                         Components::RandomShots,
-                                        Components::AimedBursts>;
+                                        Components::AimedBursts,
+                                        Components::Swing,
+                                        Components::Enrage,
+                                        Protecs::Components::BossPhase>;
 
     /**
      * An entity a system wants to create: its Body, its
