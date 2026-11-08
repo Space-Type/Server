@@ -37,6 +37,7 @@ namespace RType::Game {
             Wrecks::DeltaTime m_FixedUpdateElapsedTime;
             Wrecks::DeltaTime m_NetworkUpdateElapsedTime;
             unsigned int m_NetworkUpdates;
+            std::chrono::steady_clock::time_point m_LastPing;
 
             std::unordered_map<Protecs::Networking::Address, Wrecks::ECS::Entity> m_Players;
             std::deque<InternalEvent> m_IncomingEvents;
@@ -87,6 +88,7 @@ namespace RType::Game {
 
             Wrecks::ECS::Entity findEntity(Protecs::NetworkEntity networkId) const;
             void broadcastPacket(Protecs::Networking::Packets::PacketData&& packet);
+            void dropSilentPlayers();
 
             template <Wrecks::Utils::ContainerContainsType<Protecs::Components::Manager> C>
             void sendSharedComponent(Wrecks::ECS::Entity entity)

@@ -11,6 +11,15 @@
 #include <rtype/game.hpp>
 #include <rtype/utils.hpp>
 #include <variant>
+#include <vector>
+
+
+namespace {
+    // Every player is pinged this often, and answers with a Ping (or any other packet)
+    constexpr auto PING_INTERVAL = std::chrono::seconds(1);
+    // A player silent this long has crashed or lost its connection
+    constexpr auto PLAYER_TIMEOUT = std::chrono::seconds(15);
+}
 
 
 namespace Packets = Protecs::Networking::Packets;
@@ -81,6 +90,7 @@ if (playerIt == m_Players.end()) {
 
 auto& player = m_Engine.get<Components::Player>()[playerIt->second];
 
+player.lastSeen = std::chrono::steady_clock::now();
 m_IncomingEvents.emplace_back(&player, std::move(data));
 return true;
 }
@@ -174,6 +184,8 @@ void RType::Game::Game::handleEvents(Protecs::Tick tick)
  */
 void RType::Game::Game::updateNetwork()
 {
+    dropSilentPlayers();
+
     m_NetworkUpdates++;
     constexpr std::size_t protecsComponentCount = Wrecks::Utils::container_elements_v<Protecs::Components::Manager>;
 
@@ -200,6 +212,37 @@ void RType::Game::Game::updateNetwork()
     if (m_NetworkUpdates >= UPDATES_PER_INPUT_SYNC) {
         broadcastPacket(Packets::PlayerInput{});
         m_NetworkUpdates = 0;
+    }
+}
+
+/**
+ * Removes the players that sent nothing for PLAYER_TIMEOUT
+ * (crashed client, lost connection): the other players get
+ * their EntityDelete. Then pings the others, so a player that
+ * has nothing else to send still answers.
+ *
+ * The silent players are removed before the ping is queued:
+ * an event queued for a removed player would point to a
+ * deleted component.
+ */
+void RType::Game::Game::dropSilentPlayers()
+{
+    auto now = std::chrono::steady_clock::now();
+    std::vector<Protecs::Networking::Address> silent;
+
+    for (const auto& [address, entity] : m_Players)
+        if (now - m_Engine.get<Components::Player>()[entity].lastSeen > PLAYER_TIMEOUT)
+            silent.push_back(address);
+
+    for (const auto& address : silent) {
+        logger.info() << "player \"" << m_Engine.get<Components::Player>()[m_Players.at(address)].name << "\" (" << address
+                      << ") timed out" << std::endl;
+        disconnectPlayer(address);
+    }
+
+    if (now - m_LastPing >= PING_INTERVAL) {
+        broadcastPacket(Packets::Ping{});
+        m_LastPing = now;
     }
 }
 
