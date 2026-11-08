@@ -38,9 +38,11 @@ set(SOURCES
     src/components/Enrage/Enrage.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/LevelState/LevelState.hpp
+    src/components/Loot/Loot.hpp
     src/components/InputBuffer/InputBuffer.hpp
     src/components/NetworkID/NetworkID.cpp
     src/components/NetworkID/NetworkID.hpp
+    src/components/Pickup/Pickup.hpp
     src/components/Player/Player.cpp
     src/components/Player/Player.hpp
     src/components/RandomShots/RandomShots.hpp

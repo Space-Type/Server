@@ -30,6 +30,8 @@ namespace RType::Components {
                                       RandomShots,
                                       AimedBursts,
                                       Swing,
-                                      Enrage>
+                                      Enrage,
+                                      Loot,
+                                      Pickup>
     >;
 }

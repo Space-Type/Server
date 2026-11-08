@@ -29,6 +29,8 @@ namespace RType::Game {
                                         Components::AimedBursts,
                                         Components::Swing,
                                         Components::Enrage,
+                                        Components::Loot,
+                                        Components::Pickup,
                                         Protecs::Components::BossPhase>;
 
     /**
