@@ -83,15 +83,16 @@ auto RType::Game::parseStage(std::string_view text, std::vector<std::string>& er
 
         auto value = parseNumber<std::uint32_t>(first);
         auto entity = more ? parseType(second) : std::nullopt;
-        auto height = tooMany ? parseNumber<float>(third) : std::nullopt;
+        bool isRandom = tooMany && third == "random";
+        auto height = tooMany && !isRandom ? parseNumber<float>(third) : std::nullopt;
         auto movement = (words >> pattern) ? parsePattern(pattern) : std::nullopt;
 
-        if (!value || !entity || !height || !movement || (words >> extra && !extra.starts_with('#'))
-            || *height < 0.0F || *height > Protecs::MAP_MAX_Y) {
-            errors.push_back("line " + std::to_string(number) + ": expected \"progression type y movement\", got \"" + line + "\"");
+        if (!value || !entity || (!height && !isRandom) || !movement || (words >> extra && !extra.starts_with('#'))
+            || (height && (*height < 0.0F || *height > Protecs::MAP_MAX_Y))) {
+            errors.push_back("line " + std::to_string(number) + ": expected \"progression type y|random movement\", got \"" + line + "\"");
             continue;
         }
-        stage.waves.push_back({ .progression = *value, .type = *entity, .y = *height, .pattern = *movement });
+        stage.waves.push_back({ .progression = *value, .type = *entity, .y = height.value_or(0.0F), .randomY = isRandom, .pattern = *movement });
     }
     std::ranges::stable_sort(stage.waves, {}, &Wave::progression);
     return stage;

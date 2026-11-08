@@ -56,6 +56,10 @@ namespace RType::Rules {
     inline constexpr float SINE_AMPLITUDE = 40.0F;         // world units above and below the starting height
     inline constexpr float SINE_PERIOD = 2.0F;             // seconds
 
+    // Height of an enemy marked `random` in a stage file: even along a sine, it stays on screen
+    inline constexpr float RANDOM_Y_MIN = SINE_AMPLITUDE;
+    inline constexpr float RANDOM_Y_MAX = Protecs::MAP_MAX_Y - ENEMY_SIZE.y - SINE_AMPLITUDE;
+
     // Charge level (0 to CHARGE_LEVELS) after holding the trigger for `seconds`
     constexpr std::uint8_t chargeLevel(float seconds) noexcept
     {
