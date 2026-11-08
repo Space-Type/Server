@@ -71,9 +71,13 @@ set(SOURCES
     src/systems/BufferedInput/BufferedInput.cpp
     src/systems/BurstFire/BurstFire.cpp
     src/systems/BurstFire/BurstFire.hpp
+    src/systems/Collecting/Collecting.cpp
+    src/systems/Collecting/Collecting.hpp
     src/systems/Collisions/Collisions.cpp
     src/systems/Collisions/Collisions.hpp
     src/systems/Flight/Flight.cpp
+    src/systems/Looting/Looting.cpp
+    src/systems/Looting/Looting.hpp
     src/systems/PhaseChange/PhaseChange.cpp
     src/systems/PhaseChange/PhaseChange.hpp
     src/systems/Flight/Flight.hpp

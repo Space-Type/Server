@@ -44,6 +44,7 @@ namespace RType::Rules {
     inline constexpr std::uint16_t PATA_PATA_HEALTH = 1;
 
     inline constexpr std::uint8_t PLAYER_LIVES = 3;
+    inline constexpr std::uint8_t MAX_LIVES = 10;            // bonus lives stack up to it (Game-Client HUD: one heart and "xN" above 5)
     inline constexpr std::uint32_t ENEMY_SCORE = 100;
     inline constexpr float RESPAWN_INVULNERABILITY = 2.0F;  // the client blinks the ship as long (Game-Client: BLINK_DURATION)
     inline constexpr float OFFSCREEN_MARGIN = 64.0F;        // beyond it, an enemy or a missile is gone
@@ -51,6 +52,12 @@ namespace RType::Rules {
     // Levels: the progression is in pixels of the stage background (Game-Client: assets/stages, 240 px high)
     inline constexpr float SCROLL_SPEED = 30.0F;           // background pixels per second
     inline constexpr float STAGE_CLEAR_DELAY = 4.0F;       // seconds of "STAGE CLEAR" before the next stage (Game-Client: STAGE_CLEAR_ANNOUNCEMENT)
+
+    // Bonuses dropped by enemies (Loot)
+    inline constexpr float LIFE_DROP_CHANCE = 0.1F;        // an enemy without `loot` in its stage file drops a life that often
+    inline constexpr float PICKUP_SCALE = 2.0F;            // the client heart sprite (9 x 8) drawn twice as big
+    inline constexpr Vec2D PICKUP_SIZE = { 9.0F * PICKUP_SCALE, 8.0F * PICKUP_SCALE };
+    inline constexpr float PICKUP_SPEED = SCROLL_SPEED * Protecs::MAP_MAX_Y / 240.0F;  // drifts with the background
 
     // Pattern::Sine
     inline constexpr float SINE_AMPLITUDE = 40.0F;         // world units above and below the starting height
