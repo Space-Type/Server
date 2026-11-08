@@ -1,0 +1,157 @@
+# Stage 1: enemies appear on the right when the level reaches their progression
+# (pixels of stage-1.png scrolled, 30 per second).
+#
+# The scrolling stops when the end of stage-1.png (4224 px wide) reaches the
+# right edge of the screen (~427 px of background shown): 4224 - 427 = 3797.
+# The boss comes then.
+length 3797
+boss   dobkeratops
+
+# progression  type       y    movement
+
+# formation at 120
+120            pata-pata  80   sine
+150            pata-pata  80   sine
+180            pata-pata  80   sine
+210            pata-pata  80   sine
+240            pata-pata  80   sine
+
+# formation at 330
+330            pata-pata  300  sine
+360            pata-pata  300  sine
+390            pata-pata  300  sine
+420            pata-pata  300  sine
+450            pata-pata  300  sine
+
+# formation at 540
+540            pata-pata  200  straight
+570            pata-pata  200  straight
+600            pata-pata  200  straight
+630            pata-pata  200  straight
+
+# formation at 690
+690            pata-pata  120  sine
+720            pata-pata  120  sine
+750            pata-pata  120  sine
+780            pata-pata  120  sine
+810            pata-pata  120  sine
+
+# formation at 900
+900            pata-pata  320  sine
+930            pata-pata  320  sine
+960            pata-pata  320  sine
+990            pata-pata  320  sine
+1020           pata-pata  320  sine
+
+# formation at 1080
+1080           pata-pata  60   straight
+1110           pata-pata  60   straight
+1140           pata-pata  60   straight
+
+# formation at 1110
+1110           pata-pata  360  straight
+1140           pata-pata  360  straight
+1170           pata-pata  360  straight
+
+# formation at 1290
+1290           pata-pata  190  sine
+1320           pata-pata  190  sine
+1350           pata-pata  190  sine
+1380           pata-pata  190  sine
+1410           pata-pata  190  sine
+1440           pata-pata  190  sine
+
+# formation at 1530
+1530           pata-pata  100  sine
+1560           pata-pata  100  sine
+1590           pata-pata  100  sine
+1620           pata-pata  100  sine
+1650           pata-pata  100  sine
+
+# formation at 1560
+1560           pata-pata  300  sine
+1590           pata-pata  300  sine
+1620           pata-pata  300  sine
+1650           pata-pata  300  sine
+1680           pata-pata  300  sine
+
+# formation at 1800
+1800           pata-pata  220  straight
+1830           pata-pata  220  straight
+1860           pata-pata  220  straight
+1890           pata-pata  220  straight
+1920           pata-pata  220  straight
+
+# formation at 2010
+2010           pata-pata  140  sine
+2040           pata-pata  140  sine
+2070           pata-pata  140  sine
+2100           pata-pata  140  sine
+2130           pata-pata  140  sine
+2160           pata-pata  140  sine
+
+# formation at 2250
+2250           pata-pata  330  sine
+2280           pata-pata  330  sine
+2310           pata-pata  330  sine
+2340           pata-pata  330  sine
+2370           pata-pata  330  sine
+2400           pata-pata  330  sine
+
+# formation at 2490
+2490           pata-pata  60   sine
+2520           pata-pata  60   sine
+2550           pata-pata  60   sine
+2580           pata-pata  60   sine
+
+# formation at 2520
+2520           pata-pata  250  sine
+2550           pata-pata  250  sine
+2580           pata-pata  250  sine
+2610           pata-pata  250  sine
+
+# formation at 2730
+2730           pata-pata  180  straight
+2760           pata-pata  180  straight
+2790           pata-pata  180  straight
+2820           pata-pata  180  straight
+2850           pata-pata  180  straight
+2880           pata-pata  180  straight
+
+# formation at 2970
+2970           pata-pata  100  sine
+3000           pata-pata  100  sine
+3030           pata-pata  100  sine
+3060           pata-pata  100  sine
+3090           pata-pata  100  sine
+3120           pata-pata  100  sine
+
+# formation at 3000
+3000           pata-pata  320  sine
+3030           pata-pata  320  sine
+3060           pata-pata  320  sine
+3090           pata-pata  320  sine
+3120           pata-pata  320  sine
+3150           pata-pata  320  sine
+
+# formation at 3240
+3240           pata-pata  210  sine
+3270           pata-pata  210  sine
+3300           pata-pata  210  sine
+3330           pata-pata  210  sine
+3360           pata-pata  210  sine
+3390           pata-pata  210  sine
+3420           pata-pata  210  sine
+3450           pata-pata  210  sine
+
+# formation at 3510
+3510           pata-pata  140  straight
+3540           pata-pata  140  straight
+3570           pata-pata  140  straight
+3600           pata-pata  140  straight
+
+# formation at 3540
+3540           pata-pata  300  straight
+3570           pata-pata  300  straight
+3600           pata-pata  300  straight
+3630           pata-pata  300  straight
