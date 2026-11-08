@@ -21,10 +21,11 @@ namespace RType::Game {
     struct DevOptions {
         bool god = false;           // players never lose a life
         float speed = 1.0F;         // the level scrolls this many times faster
-        std::uint32_t start = 0;    // progression the level starts at
+        std::uint8_t stage = 1;     // stage the level starts at (1: the first one)
+        std::uint32_t start = 0;    // progression the level starts at, in that stage
         std::optional<float> dropRate;  // chance (0 to 1) of every enemy dropping its bonus, whatever its stage file says
 
-        [[ nodiscard ]] inline bool any() const noexcept { return god || speed != 1.0F || start != 0 || dropRate; }
+        [[ nodiscard ]] inline bool any() const noexcept { return god || speed != 1.0F || stage != 1 || start != 0 || dropRate; }
     };
 
     struct CommandLine {
@@ -45,6 +46,7 @@ namespace RType::Game {
         "Developer options (to test a level, never on a real server):\n"
         "  --god            players never lose a life\n"
         "  --speed <n>      the level scrolls n times faster (0 < n <= 50)\n"
+        "  --stage <n>      the level starts at stage n (1 <= n <= the number of stage files)\n"
         "  --start <n>      the level starts at progression n (pixels of the stage background)\n"
         "  --drop-rate <p>  every enemy drops its bonus with chance p (0 <= p <= 1)\n";
 
