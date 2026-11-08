@@ -8,7 +8,6 @@
 
 #include "Waves.hpp"
 #include "../Blueprints/Blueprints.hpp"
-#include "../Rules.hpp"
 #include <rtype/utils.hpp>
 #include <protecs/common.hpp>
 #include <algorithm>
@@ -27,6 +26,8 @@ namespace {
     {
         if (name == "pata-pata")
             return EntityCreate::ENEMY_PATA_PATA;
+        if (name == "pow-armor")
+            return EntityCreate::ENEMY_POW_ARMOR;
         return std::nullopt;
     }
 
@@ -50,23 +51,22 @@ namespace {
         return value;
     }
 
-    // "none", "life" (always) or "life:<chance>" (0 to 1)
+    // "none", "<item>" (always) or "<item>:<chance>" (0 to 1); items: life, force
     std::optional<RType::Components::Loot> parseLoot(const std::string& text) noexcept
     {
         using RType::Components::Item;
 
         if (text == "none")
             return RType::Components::Loot{ .item = Item::Life, .chance = 0.0F };
-        if (text == "life")
-            return RType::Components::Loot{ .item = Item::Life, .chance = 1.0F };
-        if (!text.starts_with("life:"))
-            return std::nullopt;
 
-        auto chance = parseNumber<float>(text.substr(5));
+        auto colon = text.find(':');
+        std::string name = text.substr(0, colon);
+        std::optional<Item> item = name == "life" ? std::optional(Item::Life) : name == "force" ? std::optional(Item::Force) : std::nullopt;
+        auto chance = colon == std::string::npos ? std::optional(1.0F) : parseNumber<float>(text.substr(colon + 1));
 
-        if (!chance || !(*chance >= 0.0F && *chance <= 1.0F))
+        if (!item || !chance || !(*chance >= 0.0F && *chance <= 1.0F))
             return std::nullopt;
-        return RType::Components::Loot{ .item = Item::Life, .chance = *chance };
+        return RType::Components::Loot{ .item = *item, .chance = *chance };
     }
 }
 
@@ -107,15 +107,15 @@ auto RType::Game::parseStage(std::string_view text, std::vector<std::string>& er
         auto height = tooMany && !isRandom ? parseNumber<float>(third) : std::nullopt;
         auto movement = (words >> pattern) ? parsePattern(pattern) : std::nullopt;
         bool hasLoot = (words >> column) && !column.starts_with('#');
-        auto loot = hasLoot ? parseLoot(column) : Components::Loot{ .item = Components::Item::Life, .chance = Rules::LIFE_DROP_CHANCE };
+        auto loot = hasLoot ? parseLoot(column) : std::nullopt;
 
-        if (!value || !entity || (!height && !isRandom) || !movement || !loot || (hasLoot && words >> extra && !extra.starts_with('#'))
+        if (!value || !entity || (!height && !isRandom) || !movement || (hasLoot && !loot) || (hasLoot && words >> extra && !extra.starts_with('#'))
             || (height && (*height < 0.0F || *height > Protecs::MAP_MAX_Y))) {
             errors.push_back("line " + std::to_string(number) + ": expected \"progression type y|random movement [loot]\", got \"" + line + "\"");
             continue;
         }
         stage.waves.push_back({ .progression = *value, .type = *entity, .y = height.value_or(0.0F), .randomY = isRandom, .pattern = *movement,
-                                .loot = *loot });
+                                .loot = loot });
     }
     std::ranges::stable_sort(stage.waves, {}, &Wave::progression);
     return stage;

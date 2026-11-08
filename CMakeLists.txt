@@ -34,8 +34,10 @@ set(SOURCES
     src/components/Attached/Attached.hpp
     src/components/Body/Body.hpp
     src/components/Boss/Boss.hpp
+    src/components/ContactDamage/ContactDamage.hpp
     src/components/Enemy/Enemy.hpp
     src/components/Enrage/Enrage.hpp
+    src/components/Force/Force.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/LevelState/LevelState.hpp
     src/components/Loot/Loot.hpp
@@ -46,11 +48,14 @@ set(SOURCES
     src/components/Player/Player.cpp
     src/components/Player/Player.hpp
     src/components/RandomShots/RandomShots.hpp
+    src/components/Shield/Shield.hpp
     src/components/StopAt/StopAt.hpp
     src/components/Swing/Swing.hpp
     src/components/Manager.hpp
     src/game/Blueprints/Blueprints.cpp
     src/game/Blueprints/Blueprints.hpp
+    src/game/Damage/Damage.cpp
+    src/game/Damage/Damage.hpp
     src/game/DevOptions/DevOptions.cpp
     src/game/DevOptions/DevOptions.hpp
     src/game/Game/Game.cpp
@@ -75,14 +80,22 @@ set(SOURCES
     src/systems/Collecting/Collecting.hpp
     src/systems/Collisions/Collisions.cpp
     src/systems/Collisions/Collisions.hpp
+    src/systems/ContactHits/ContactHits.cpp
+    src/systems/ContactHits/ContactHits.hpp
     src/systems/Flight/Flight.cpp
     src/systems/Looting/Looting.cpp
     src/systems/Looting/Looting.hpp
     src/systems/PhaseChange/PhaseChange.cpp
     src/systems/PhaseChange/PhaseChange.hpp
     src/systems/Flight/Flight.hpp
+    src/systems/ForceControl/ForceControl.cpp
+    src/systems/ForceControl/ForceControl.hpp
+    src/systems/ForceFire/ForceFire.cpp
+    src/systems/ForceFire/ForceFire.hpp
     src/systems/Scrolling/Scrolling.cpp
     src/systems/Scrolling/Scrolling.hpp
+    src/systems/Shielding/Shielding.cpp
+    src/systems/Shielding/Shielding.hpp
     src/systems/Shooting/Shooting.cpp
     src/systems/Shooting/Shooting.hpp
     src/systems/StageSpawner/StageSpawner.cpp

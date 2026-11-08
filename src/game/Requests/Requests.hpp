@@ -31,6 +31,9 @@ namespace RType::Game {
                                         Components::Enrage,
                                         Components::Loot,
                                         Components::Pickup,
+                                        Components::Force,
+                                        Components::ContactDamage,
+                                        Components::Shield,
                                         Protecs::Components::BossPhase>;
 
     /**

@@ -127,22 +127,34 @@ namespace {
 }
 
 
+/**
+ * A Pata-Pata shoots at random and drops a life now and
+ * then; a POW Armor never shoots and always drops a Force
+ * item. The stage file may change what an enemy drops.
+ */
 auto RType::Game::Blueprints::enemy(const Wave& wave, float cooldown) -> SpawnRequest
 {
-    return {
+    bool powArmor = wave.type == EntityCreate::ENEMY_POW_ARMOR;
+    std::uint16_t health = powArmor ? Rules::POW_ARMOR_HEALTH : Rules::PATA_PATA_HEALTH;
+    Components::Loot loot = wave.loot.value_or(powArmor ? Components::Loot{ .item = Components::Item::Force, .chance = 1.0F }
+                                                        : Components::Loot{ .item = Components::Item::Life, .chance = Rules::LIFE_DROP_CHANCE });
+    SpawnRequest request = {
         .type = wave.type,
         .position = { Protecs::MAP_MAX_X, wave.y },
-        .size = Rules::ENEMY_SIZE,
+        .size = powArmor ? Rules::POW_ARMOR_SIZE : Rules::ENEMY_SIZE,
         .velocity = { -Rules::ENEMY_SPEED, 0.0F },
         .cooldown = cooldown,
         .pattern = wave.pattern,
         .components = {
-            Protecs::Components::Health{ .hp = Rules::PATA_PATA_HEALTH, .max = Rules::PATA_PATA_HEALTH },
+            Protecs::Components::Health{ .hp = health, .max = health },
             Components::Enemy{ .reward = Rules::ENEMY_SCORE },
-            Components::RandomShots{ .min = Rules::ENEMY_SHOT_MIN, .max = Rules::ENEMY_SHOT_MAX },
-            wave.loot,
+            loot,
         },
     };
+
+    if (!powArmor)
+        request.components.emplace_back(Components::RandomShots{ .min = Rules::ENEMY_SHOT_MIN, .max = Rules::ENEMY_SHOT_MAX });
+    return request;
 }
 
 bool RType::Game::Blueprints::isBoss(std::string_view name) noexcept

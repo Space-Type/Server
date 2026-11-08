@@ -11,14 +11,21 @@
 
 
 namespace {
-    // What clients draw for an item
-    constexpr RType::Rules::EntityType pickupType(RType::Components::Item item) noexcept
+    struct PickupLook {
+        RType::Rules::EntityType type;  // what clients draw
+        RType::Rules::Vec2D size;
+        float scale;
+    };
+
+    constexpr PickupLook pickupLook(RType::Components::Item item) noexcept
     {
         switch (item) {
             case RType::Components::Item::Life:
-                return RType::Rules::EntityCreate::PICKUP_LIFE;
+                return { RType::Rules::EntityCreate::PICKUP_LIFE, RType::Rules::PICKUP_SIZE, RType::Rules::PICKUP_SCALE };
+            case RType::Components::Item::Force:
+                return { RType::Rules::EntityCreate::PICKUP_FORCE, RType::Rules::PICKUP_FORCE_SIZE, 1.0F };
         }
-        return RType::Rules::EntityCreate::GENERIC;
+        return { RType::Rules::EntityCreate::GENERIC, RType::Rules::PICKUP_SIZE, 1.0F };
     }
 }
 
@@ -46,13 +53,14 @@ void RType::Systems::Looting::operator()(Wrecks::ECS::Entity entity, Wrecks::Del
 
     // Centred on the enemy hitbox
     Rules::Vec2D centre = transform.position + body.offset + body.size / 2.0F;
+    auto look = pickupLook(loot.item);
 
     m_Requests->spawns.push_back({
-        .type = pickupType(loot.item),
-        .position = centre - Rules::PICKUP_SIZE / 2.0F,
-        .size = Rules::PICKUP_SIZE,
+        .type = look.type,
+        .position = centre - look.size / 2.0F,
+        .size = look.size,
         .velocity = { -Rules::PICKUP_SPEED, 0.0F },
-        .scale = Rules::PICKUP_SCALE,
+        .scale = look.scale,
         .components = { Components::Pickup{ .item = loot.item } },
     });
 }
