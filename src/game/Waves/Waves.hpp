@@ -65,7 +65,7 @@ namespace RType::Game {
     Stage parseStage(std::string_view text, std::vector<std::string>& errors);
 
     /**
-     * Finds `assets/stages/<name>` from the current directory or
+     * Finds `stages/<name>` from the current directory or
      * one of its parents (the server runs from its repository or
      * its build directory) and parses it. Problems are logged;
      * no file gives nothing, an unreadable one an empty stage.

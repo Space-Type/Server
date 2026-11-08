@@ -153,7 +153,7 @@ void RType::Game::Game::setDevOptions(const DevOptions& dev)
 {
     if (dev.stage > std::max<std::size_t>(m_Stages.size(), 1))
         throw std::invalid_argument("--stage " + std::to_string(dev.stage) + ": there are only " + std::to_string(m_Stages.size())
-                                    + " stage files (assets/stages/stage-<n>.waves)");
+                                    + " stage files (stages/stage-<n>.waves)");
     m_Dev = dev;
     m_Engine.get<Systems::Collisions>().setInvincible(dev.god);
     m_Engine.get<Systems::Scrolling>().setSpeed(dev.speed);

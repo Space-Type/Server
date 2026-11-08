@@ -53,7 +53,7 @@ namespace RType::Game {
             // Level and requests of the systems: used by the functions of Level.cpp
             Requests m_Requests;                    // asked by the systems, applied after each fixed update
             std::optional<Wrecks::ECS::Entity> m_Level;  // exists while at least one player is connected
-            std::vector<Stage> m_Stages;                  // assets/stages/stage-<n>.waves, stage n at n - 1
+            std::vector<Stage> m_Stages;                  // stages/stage-<n>.waves, stage n at n - 1
             DevOptions m_Dev;
 
         public:

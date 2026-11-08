@@ -128,7 +128,7 @@ auto RType::Game::loadStage(const std::string& name) noexcept -> std::optional<S
         std::filesystem::path directory = std::filesystem::current_path(error);
 
         for (; !directory.empty(); directory = directory.parent_path()) {
-            std::filesystem::path path = directory / "assets" / "stages" / name;
+            std::filesystem::path path = directory / "stages" / name;
 
             if (!std::filesystem::is_regular_file(path, error)) {
                 if (directory == directory.parent_path())
@@ -167,6 +167,6 @@ auto RType::Game::loadStages() noexcept -> std::vector<Stage>
     for (int number = 1; auto stage = loadStage("stage-" + std::to_string(number) + ".waves"); ++number)
         stages.push_back(std::move(*stage));
     if (stages.empty())
-        logger.error() << "no stage file found (assets/stages/stage-1.waves), the level stays empty" << std::endl;
+        logger.error() << "no stage file found (stages/stage-1.waves), the level stays empty" << std::endl;
     return stages;
 }
