@@ -29,8 +29,12 @@ endif()
 # --------------- Project Build -------------- #
 
 set(SOURCES
+    src/components/AimedBursts/AimedBursts.hpp
+    src/components/Armored/Armored.hpp
+    src/components/Attached/Attached.hpp
     src/components/Body/Body.hpp
     src/components/Boss/Boss.hpp
+    src/components/Enemy/Enemy.hpp
     src/components/InputBuffer/InputBuffer.cpp
     src/components/LevelState/LevelState.hpp
     src/components/InputBuffer/InputBuffer.hpp
@@ -38,6 +42,8 @@ set(SOURCES
     src/components/NetworkID/NetworkID.hpp
     src/components/Player/Player.cpp
     src/components/Player/Player.hpp
+    src/components/RandomShots/RandomShots.hpp
+    src/components/StopAt/StopAt.hpp
     src/components/Manager.hpp
     src/game/DevOptions/DevOptions.cpp
     src/game/DevOptions/DevOptions.hpp

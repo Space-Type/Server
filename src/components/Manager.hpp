@@ -22,6 +22,12 @@ namespace RType::Components {
                                       InputBuffer,
                                       LevelState,
                                       NetworkID,
-                                      Player>
+                                      Player,
+                                      Enemy,
+                                      Armored,
+                                      StopAt,
+                                      Attached,
+                                      RandomShots,
+                                      AimedBursts>
     >;
 }
